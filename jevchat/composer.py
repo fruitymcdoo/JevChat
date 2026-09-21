@@ -58,7 +58,7 @@ REOPEN_FRACTION = 0.34  # after a rejection, this share of slots (the shakiest) 
 
 # The goal. A draft is judged by Jev; only GATE decides acceptance, the others
 # are diagnostics that ride along in the same request.
-ACCEPT_THRESHOLD = 0.90  # default; the UI can override per message
+ACCEPT_THRESHOLD = 0.80  # default; the UI can override per message. Good replies to complex messages tend to land around 0.80-0.90.
 GATE = "responds"
 ASSESS = {
     "responds": (

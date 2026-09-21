@@ -41,7 +41,7 @@ at a time, and every choice sees the real text so far.
 | heats | A big kind is several flat lists of 255 words by frequency (nouns: 20 lists). Every list is asked at once and sends its best 3 words to a final. |
 | finals | One flat choice per kind among the heat winners. Its top 3 are nominated; with the thesaurus on, so are synonyms of its favourite. |
 | compare | The nominees rendered as whole texts ("Sorry about your", "Sorry about that", ...). Jev picks the one that reads best, or stops, or takes back the last word (undo, only at 60%+ probability). |
-| assess | 3 yes/no questions about the finished reply: `responds`, `grammatical`, `complete`. Accepted when `responds` reaches `ACCEPT_THRESHOLD` (default 0.90, adjustable per message in the UI) and `grammatical` is at least 0.5. |
+| assess | 3 yes/no questions about the finished reply: `responds`, `grammatical`, `complete`. Accepted when `responds` reaches `ACCEPT_THRESHOLD` (default 0.80, adjustable per message in the UI) and `grammatical` is at least 0.5. |
 | rewind | On rejection the word Jev was least sure of is ruled out at its position and writing resumes from there, up to 3 attempts. Then the best attempt is sent, flagged as below the bar. |
 
 Every composing prompt opens with the task context (who is speaking, what a reply is for), and every
@@ -63,7 +63,7 @@ concurrent requests when it would not fit in one.)
 | plan | 1 request: what the reply should do, its tone, and "How many words should an ideal response to this query contain?" (1-3, 4-6, 7-10, 10-20, 20-30, 30+). The answer sets the layout (`LAYOUT`): how many sentences, and how many slots in each. Sentences are written one at a time, each seeing the finished ones, because parallel filling is sharp up to about nine slots. |
 | fill | Rounds of 3 waves. **Kind:** every open slot is asked what kind of word it needs. **Heats:** the few slots Jev is surest about (`FOCUS_SLOTS`) search for their word: a big kind such as nouns is 20 flat lists of 255 words by frequency, all asked at once, each sending its best 3 to a final. **Finals:** one flat choice among the heat winners gives P(word given kind); times P(kind), these are the slot's potentials. With the thesaurus on, synonyms of each branch's favourite join them. Only the surest slots are locked each round (`COMMIT_MIN_P`, never two neighbours at once); the rest are asked again with those anchors in view. |
 | settle | 2 waves: every slot compares whole-text versions of the reply, one per candidate (odd slots, then even). The judge referees: the settled draft is kept only if it scores higher. |
-| assess | 3 yes/no questions about the draft: `responds` (the gate), `grammatical`, `complete`. Accepted at `ACCEPT_THRESHOLD` (default 0.90, adjustable per message in the UI). |
+| assess | 3 yes/no questions about the draft: `responds` (the gate), `grammatical`, `complete`. Accepted at `ACCEPT_THRESHOLD` (default 0.80, adjustable per message in the UI). |
 | reopen | On rejection the shakiest third of slots is blanked and filled again, up to `MAX_ATTEMPTS` drafts and `MAX_ROUNDS` rounds. Then the best-scoring draft is sent, flagged as below the bar. |
 
 Why lock gradually: asked blind, slots in the middle of a sentence all give the same blurry answer
@@ -121,7 +121,8 @@ judge's score rose in three; that sample is too small to call more than encourag
 
 ## What we've seen so far
 
-Left to right, same messages as every earlier version:
+Left to right, same messages as every earlier version. These runs used a 90% bar; the default is now 80%,
+which also means fewer retries, so typical replies are cheaper and faster than the figures above.
 
 | Message | Reply | `responds` |
 | --- | --- | --- |
