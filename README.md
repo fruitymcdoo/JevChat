@@ -1,8 +1,16 @@
 # JevChat
 
 A chat interface on top of [Jev](https://docs.typesafe.ai), TypeSafe's decision model.
-Jev never writes text, and there is no canned text either: replies are composed from **slots filled in parallel**, each slot the result of a waterfall of typed decisions over a dictionary.
-The UI shows the draft filling in round by round and every decision underneath.
+Jev never writes text, and there is no canned text either: every word of a reply is the result of
+typed decisions over a 9,000-word dictionary, and a judge (also Jev) decides whether the reply is
+good enough to send. The UI streams words as they are decided and shows every decision underneath.
+
+```
+user> I just got a new puppy and she is adorable
+ bot> Wow she's cute! What name is she?          (accepted at 94%)
+user> her name is Biscuit
+ bot> Wow Biscuit! Adorable!                      (best effort, 87%)
+```
 
 ## Run
 
@@ -11,12 +19,39 @@ python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 # put TYPESAFE_API_KEY=... in .env
 .venv\Scripts\python app.py           # http://localhost:5000
-.venv\Scripts\python smoke_test.py -v # scripted conversation, with each slot's potentials
+.venv\Scripts\python smoke_test.py -v # scripted conversation with each word's decisions (--parallel for the other composer)
 ```
 
 Without an API key the app falls back to a keyword-overlap `MockDecider` so the wiring still runs.
 
 ## How a reply is built
+
+There are two composers, selectable in the UI. **Left to right** is the default and much the better one.
+
+### Left to right (`jevchat/linear.py`)
+
+Every measurement below points the same way: Jev is very good at picking a whole word when it can
+see a real sentence, and weak when the choice is removed from that. So the reply is written one word
+at a time, and every choice sees the real text so far.
+
+| Stage | What happens |
+| --- | --- |
+| plan | 1 request: what the reply should do, its tone, and "How many words should an ideal response to this query contain?" (1-3 ... 30+), which sets the word limit. |
+| kind | What kind of word comes next: pronoun, helper verb, noun, verb, ..., a word echoed from the user, punctuation, or stop. The top 3 kinds all go on. |
+| heats | A big kind is several flat lists of 255 words by frequency (nouns: 20 lists). Every list is asked at once and sends its best 3 words to a final. |
+| finals | One flat choice per kind among the heat winners. Its top 3 are nominated; with the thesaurus on, so are synonyms of its favourite. |
+| compare | The nominees rendered as whole texts ("Sorry about your", "Sorry about that", ...). Jev picks the one that reads best, or stops, or takes back the last word (undo, only at 60%+ probability). |
+| assess | 3 yes/no questions about the finished reply: `responds`, `grammatical`, `complete`. Accepted when `responds` reaches `ACCEPT_THRESHOLD` (default 0.90, adjustable per message in the UI) and `grammatical` is at least 0.5. |
+| rewind | On rejection the word Jev was least sure of is ruled out at its position and writing resumes from there, up to 3 attempts. Then the best attempt is sent, flagged as below the bar. |
+
+Every composing prompt opens with the task context (who is speaking, what a reply is for), and every
+word question carries a hint not to reuse the user's words; see the parrot experiment below.
+
+Typical cost: about 4 waves and 20k input tokens per word. A short reply is 3-5 s; a two-sentence reply
+with retries is 50-130 requests, 9-17 s and 250k-750k tokens (about $0.01-0.03).
+
+### Parallel slots (`jevchat/composer.py`)
+
 
 The reply is a row of numbered **slots**, each holding one word, one punctuation mark, or nothing.
 Every open slot is asked about at the same time, so a round costs the same few request-waves
@@ -38,9 +73,10 @@ first, "." last). Locking only confident slots lets a sentence grow from its anc
 
 ## Layout
 
-- `app.py` — Flask server; `/api/chat` streams NDJSON events (`plan`, `draft`, `settle`, `assess`, `reopen`, `done`)
+- `app.py` — Flask server; `/api/chat` streams NDJSON events (`plan`, `token`, `undo`, `end`, `assess`, `rewind`, `done`; the parallel composer adds `draft`, `settle`, `reopen`)
 - `jevchat/decider.py` — the only code that talks to Jev; normalises answers into a trace
-- `jevchat/composer.py` — plan, parallel slot filling, settle, assess; tuning constants at the top
+- `jevchat/linear.py` — the left-to-right composer (default); tuning constants at the top
+- `jevchat/composer.py` — the parallel slot-filling composer, plus the plan, judge and prompts both share
 - `jevchat/lexicon.json` — dictionary (~9,000 frequent words as flat lists per kind of word) and thesaurus (~5,100 entries)
 - `experiments/` — known-answer measurements of Jev's accuracy at each level
 - `tools/build_lexicon.py` — regenerates the lexicon from wordfreq + WordNet (`pip install nltk wordfreq`; dev-time only)
@@ -85,23 +121,28 @@ judge's score rose in three; that sample is too small to call more than encourag
 
 ## What we've seen so far
 
-- Short and medium single sentences work: "Hi!" 89%, "I love music." 57%, "Where do you hike to?" 85%.
-  New vocabulary shows up ("Congratulations", "hike", "cute").
-- Two-sentence replies are still poor. Slots in the middle of a sentence are asked with blank
-  neighbours, which is exactly the condition the 95% figure does not cover, and leftover slots
-  collect stray punctuation: "Sorry, are you feel rough?. What do did you thing do happened?" (36%),
-  "Congratulations, and really she is cute! What is the name is?" (83% on `responds`, 14% on grammar).
-- Cost is high: a two-sentence reply with retries is 80-100 requests, 10-12 s and 600k-900k input
-  tokens (about $0.03-0.04). The word heats dominate.
-- The length question is unstable: the same message gets 7-10 words one run and 10-20 the next.
-- The judge remains reliable ("It's Canberra." 0.97, "The town sydney." 0.03); nothing has reached
-  90% except greetings on some runs.
+Left to right, same messages as every earlier version:
+
+| Message | Reply | `responds` |
+| --- | --- | --- |
+| I just got a new puppy and she's adorable | Wow that's great! What breed? | 91%, accepted |
+| I had a rough day at work today | Sorry for the rough day. I'm sympathetic. How did it happen? | 85% |
+| I love hiking in the mountains | Wow, what do you like about hiking? | 80% |
+| hey! | Hello! | 89% |
+| do you like music? | I do! | 48% |
+
+- Multi-sentence replies are coherent for the first time, and rewinding now usually improves the reply
+  (the puppy reply went from "How do you name her?" at 85% to "What breed?" at 91%).
+- Short answers to direct questions score low with the judge ("I do!" 48%); the 1-3 word plan leaves
+  no room to say more.
+- It has no knowledge beyond what Jev carries: the capital of Australia still comes out as Sydney,
+  and the judge correctly scores that about 3-5%.
+- The parallel composer manages single short sentences ("Where do you hike to?" 85%) but not longer
+  ones ("Sorry, are you feel rough?. What do did you thing do happened?" 36%), at several times the cost.
 
 ## Ideas
 
-- Combine what measured best: write left to right (so every choice sees a real sentence, the
-  condition where flat lists score 95%), with heats and finals for the word and the whole-text
-  comparison as the last step. About 4 waves per word.
 - Use the judge as a goal *during* composition: keep a small beam of drafts and rank them by `responds`.
-- Let the judge's `grammatical` score gate acceptance too; `responds` alone passes broken grammar.
+- Cut cost: skip the heats when one kind is near-certain to be a small closed class; cache heats across rewinds.
+- Let the plan ask for more room when the user asks a direct question.
 - Add proper nouns to the dictionary (Canberra).

@@ -10,11 +10,13 @@ load_dotenv()
 
 from jevchat.composer import ACCEPT_THRESHOLD, Composer  # noqa: E402  (needs env loaded first)
 from jevchat.decider import make_decider  # noqa: E402
+from jevchat.linear import LinearComposer  # noqa: E402
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # sessions reset on restart; fine for a prototype
 
-composer = Composer(make_decider())
+decider = make_decider()
+composers = {"linear": LinearComposer(decider), "parallel": Composer(decider)}  # first is the default
 conversations: dict[str, list[dict]] = {}  # in-memory; swap for a store later
 
 
@@ -25,7 +27,7 @@ def _history() -> list[dict]:
 
 @app.get("/")
 def index():
-    return render_template("index.html", engine=composer.decider.name, threshold=round(ACCEPT_THRESHOLD * 100))
+    return render_template("index.html", engine=decider.name, threshold=round(ACCEPT_THRESHOLD * 100))
 
 
 @app.post("/api/chat")
@@ -34,6 +36,7 @@ def chat():
     body = request.get_json(silent=True) or {}
     message = str(body.get("message", "")).strip()
     thesaurus = bool(body.get("thesaurus", True))
+    composer = composers.get(body.get("mode"), composers["linear"])
     try:
         threshold = min(max(float(body.get("threshold", ACCEPT_THRESHOLD)), 0.0), 1.0)
     except (TypeError, ValueError):

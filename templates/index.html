@@ -13,8 +13,11 @@
       <p class="sub">Every word is a decision. Engine: <code>{{ engine }}</code></p>
     </div>
     <div class="controls">
-      <label title="A finished reply is sent only if Jev rates it a good response with at least this probability. Otherwise it reopens its shakiest slots and retries, then falls back to its best attempt.">
+      <label title="A finished reply is sent only if Jev rates it a good response with at least this probability. Otherwise it rules out its shakiest word and retries, then falls back to its best attempt.">
         Accept ≥ <input id="threshold" type="number" min="0" max="100" step="5" value="{{ threshold }}">%
+      </label>
+      <label title="Left to right writes one word at a time, each seeing the text so far. Parallel fills all the words of a sentence at once.">
+        <select id="mode"><option value="linear">Left to right</option><option value="parallel">Parallel slots</option></select>
       </label>
       <label title="Let Jev consider synonyms beyond the basic dictionary">
         <input id="thesaurus" type="checkbox" checked> Thesaurus

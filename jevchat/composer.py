@@ -131,14 +131,14 @@ EMPTY = ""  # a slot deliberately left without a word
 # Every composing question opens with this. Measured in experiments/parrot_rate.py: saying who is
 # speaking, and that a reply is not an echo, takes the comparison step's preference for parroted
 # replies from 5% to 0%.
-WRITING = (
+TASK_CONTEXT = (
     "This is a conversation between two people, a user and an assistant. The user has just spoken, and now it is "
     "the assistant's turn. We are writing what the assistant says back, following the plan for the reply. "
     "The assistant speaks for itself: in its reply, \"I\" means the assistant and \"you\" means the user. "
     "A good reply reacts to what the user said: it answers, sympathises, congratulates, or asks something new. "
     "It never simply says the user's own sentence back to them, because the user already knows what they said. "
-    "The reply is a row of slots, and each slot holds one word or one punctuation mark. "
 )
+WRITING = TASK_CONTEXT + "The reply is a row of slots, and each slot holds one word or one punctuation mark. "
 # Appended to every word-picking question. With blank neighbours the user's words are the most salient
 # thing in view, and Jev put 37% of its probability on them; with this hint, 8%.
 WORD_HINT = (

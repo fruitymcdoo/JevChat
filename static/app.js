@@ -57,7 +57,22 @@ function handleEvent(ev, msg, trace) {
   const bubble = msg.querySelector(".bubble");
   if (ev.type === "plan") {
     const p = ev.plan;
-    addStep(trace, `plan: ${p.move} · ${p.tone} · ${p.length} words → ${ev.sentences} sentence${ev.sentences === 1 ? "" : "s"} × ${ev.slots} slots`, "", ev.trace);
+    const layout = ev.slots
+      ? `${ev.sentences} sentence${ev.sentences === 1 ? "" : "s"} × ${ev.slots} slots`
+      : `up to ${ev.max_words} words`;
+    addStep(trace, `plan: ${p.move} · ${p.tone} · ${p.length} words → ${layout}`, "", ev.trace);
+  } else if (ev.type === "token") {
+    msg.classList.remove("pending");
+    bubble.textContent = ev.text;
+    addStep(trace, `+ ${ev.token}`, "", ev.trace);
+  } else if (ev.type === "undo") {
+    bubble.textContent = ev.text || "…";
+    addStep(trace, `↶ undo "${ev.token}"`, "undo", ev.trace);
+  } else if (ev.type === "end") {
+    addStep(trace, "stop", "", ev.trace);
+  } else if (ev.type === "rewind") {
+    bubble.textContent = ev.text || "…";
+    addStep(trace, `↶ rewind: rule out weakest word "${ev.token}" (won with ${pct(ev.strength)})`, "undo", []);
   } else if (ev.type === "draft") {
     msg.classList.remove("pending");
     bubble.textContent = ev.view || "…";
@@ -83,7 +98,7 @@ function handleEvent(ev, msg, trace) {
     msg.classList.remove("pending");
     bubble.classList.remove("draft");
     bubble.textContent = ev.text;
-    const tries = `${ev.attempts} attempt${ev.attempts === 1 ? "" : "s"}, ${ev.rounds} rounds`;
+    const tries = `${ev.attempts} attempt${ev.attempts === 1 ? "" : "s"}` + (ev.rounds ? `, ${ev.rounds} rounds` : "");
     const verdict = ev.accepted
       ? el("div", "verdict ok", `accepted at ${pct(ev.score)} · ${tries}`)
       : el("div", "verdict low", `best effort: ${pct(ev.score)}, below the ${pct(ev.threshold)} bar · ${tries}`);
@@ -118,6 +133,7 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify({
         message,
         thesaurus: thesaurus.checked,
+        mode: document.getElementById("mode").value,
         threshold: Number(document.getElementById("threshold").value) / 100,
       }),
     });
