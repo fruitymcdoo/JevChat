@@ -32,7 +32,7 @@ from typing import Iterator
 
 from typesafe_sdk import Choice, Noul
 
-from .composer import (ACCEPT_THRESHOLD, ASSESS, GATE, HISTORY_TURNS, PLAN, PUNCTUATION, SENTENCE_END,
+from .composer import (ACCEPT_THRESHOLD, ASSESS, GATE, HISTORY_TURNS, PLAN, PUNCTUATION, SENTENCE_END, STARS,
                        TASK_CONTEXT, WORD_HINT, a_kind, load_lexicon, render)
 from .decider import Decider, decide_wave
 
@@ -50,7 +50,10 @@ CLOSE_WEIGHT = 1.0  # below 1 discourages ending: in the comparison, options tha
 BACK_STEPS = (1, 2, 3, 4, 6, 8)  # how many words Jev may take back at once (plus: the sentence, everything)
 MAX_ATTEMPTS = 3  # drafts judged per reply
 MAX_EMOJI = 2  # per reply, and never two in a row: they don't count as words, so they need their own limit
-GRAMMAR_MIN = 0.25  # a floor, not a bar: long replies with a slip score 0.3-0.6, truly broken text under 0.1
+STARS_ACCEPT = 4.0  # a reply is also accepted at this star rating. No bad reply in the labelled set rates above 3.1,
+#                     so this cannot let junk in; it rescues good replies that miss the yes/no bar by a point or two.
+GRAMMAR_MIN = 0.10  # a floor, not a bar. Readable replies with slips score 0.18-0.6; truly broken text scores 0.04-0.06.
+#                      At 0.25 this floor, not the main question, caused half of the unfair rejections.
 
 MAX_WORDS = {"1-3": 3, "4-6": 6, "7-10": 10, "10-20": 20, "20-30": 30, "30+": 40}
 
@@ -317,14 +320,15 @@ class LinearComposer:
             text = render(tokens)
             trace = []
             judged = {"conversation_so_far": recent, "user_message": user_message, "reply": text}  # no plan: judge the result, not the intent
-            decisions = self._wave("assess", judged, {k: Noul(instructions=i) for k, i in ASSESS.items()}, trace)
+            decisions = self._wave("assess", judged, {**{k: Noul(instructions=i) for k, i in ASSESS.items()}, "stars": STARS}, trace)
             tally(trace)
-            scores = {k: round(d.value, 4) for k, d in decisions.items()}
+            scores = {k: round(d.value, 4) for k, d in decisions.items() if k != "stars"}
+            scores["stars"] = round(decisions["stars"].value + 1, 1)  # Jev scores levels from 0; people count stars from 1
             score = scores[GATE]
-            accepted = score >= threshold and scores["grammatical"] >= GRAMMAR_MIN
+            accepted = (score >= threshold or scores["stars"] >= STARS_ACCEPT) and scores["grammatical"] >= GRAMMAR_MIN
             ranking = score if scores["grammatical"] >= GRAMMAR_MIN else score * scores["grammatical"]  # broken grammar can't be "best"
             if ranking > best["score"]:
-                best = {"score": ranking, "text": text, "responds": score, "grammatical": scores["grammatical"]}
+                best = {"score": ranking, "text": text, "responds": score, "grammatical": scores["grammatical"], "stars": scores["stars"]}
             yield {"type": "assess", "attempt": attempt, "text": text, "scores": scores, "score": score,
                    "threshold": threshold, "accepted": accepted, "trace": trace}
             if accepted or attempt >= MAX_ATTEMPTS:
@@ -337,5 +341,5 @@ class LinearComposer:
             yield event
 
         yield {"type": "done", "text": best["text"], "score": max(best.get("responds", 0.0), 0.0), "threshold": threshold,
-               "grammatical": best.get("grammatical"), "grammar_min": GRAMMAR_MIN,
+               "grammatical": best.get("grammatical"), "grammar_min": GRAMMAR_MIN, "stars": best.get("stars"),
                "accepted": accepted, "attempts": attempt, **totals}

@@ -36,7 +36,7 @@ import re
 from pathlib import Path
 from typing import Iterator
 
-from typesafe_sdk import Choice, Noul
+from typesafe_sdk import Choice, Noul, Score
 
 from .decider import Decider, decide_wave
 
@@ -71,6 +71,22 @@ ASSESS = {
     "grammatical": "Is the reply written in correct, natural English, with no missing or misplaced words?",
     "complete": "Does the reply end properly as a finished thought, instead of being cut off in the middle or trailing off into nonsense?",
 }
+
+# A star rating, shown next to each reply. It does not decide acceptance: in experiments/judge_calibration.py
+# no star cut-off separated fair replies from bad ones as well as the yes/no question does.
+STARS = Score(
+    instructions=(
+        "Rate how well the assistant's reply works as a response to what the user said, from one to five stars. "
+        "Only two things matter: is it relevant and correct, and can it be understood. Length, polish and detail do not matter."
+    ),
+    criteria=[
+        "One star. It fails as a response: it is wrong, irrelevant, empty, or only repeats what the user said.",
+        "Two stars. It is about the right topic, but it cannot really be understood, or it dodges what the user asked.",
+        "Three stars. It can be understood and it is a relevant response, even though the wording is clumsy or has mistakes.",
+        "Four stars. It is a clear and relevant response, even if it is short or simple.",
+        "Five stars. It is a clear, relevant and natural response.",
+    ],
+)
 
 PLAN = {
     "move": (

@@ -91,7 +91,7 @@ function handleEvent(ev, msg, trace) {
     bubble.textContent = ev.text;
     const s = ev.scores;
     addStep(trace,
-      `${ev.accepted ? "✓ accept" : "✗ reject"} attempt ${ev.attempt}: responds ${pct(s.responds)} ` +
+      `${ev.accepted ? "✓ accept" : "✗ reject"} attempt ${ev.attempt}: ${s.stars ? "★ " + s.stars.toFixed(1) + " · " : ""}responds ${pct(s.responds)} ` +
       `(grammatical ${pct(s.grammatical)}, complete ${pct(s.complete)}) vs ${pct(ev.threshold)}`,
       ev.accepted ? "" : "reject", ev.trace);
   } else if (ev.type === "reopen") {
@@ -103,7 +103,7 @@ function handleEvent(ev, msg, trace) {
     bubble.textContent = ev.text;
     const tries = `${ev.attempts} attempt${ev.attempts === 1 ? "" : "s"}` + (ev.rounds ? `, ${ev.rounds} rounds` : "");
     const verdict = ev.accepted
-      ? el("div", "verdict ok", `accepted at ${pct(ev.score)} · ${tries}`)
+      ? el("div", "verdict ok", `${ev.stars ? "★ " + ev.stars.toFixed(1) + " · " : ""}accepted${ev.score < ev.threshold ? " on stars" : ""} at ${pct(ev.score)} · ${tries}`)
       : ev.score >= ev.threshold && ev.grammatical != null
         ? el("div", "verdict low", `best effort: responds ${pct(ev.score)}, but grammar ${pct(ev.grammatical)} is under the ${pct(ev.grammar_min)} floor · ${tries}`)
         : el("div", "verdict low", `best effort: ${pct(ev.score)}, below the ${pct(ev.threshold)} bar · ${tries}`);

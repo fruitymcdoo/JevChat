@@ -42,7 +42,7 @@ at a time, and every choice sees the real text so far.
 | finals | One flat choice per kind among the heat winners. Its top 3 are nominated; with the thesaurus on, so are synonyms of its favourite. |
 | compare | The nominees rendered as whole texts ("Sorry about your", "Sorry about that", ...). Jev picks the one that reads best, or stops, or goes back (only at 90%+ probability). Options that close a sentence or stop can be weighted by `CLOSE_WEIGHT` first; it is neutral (1.0) because `experiments/close_weight.py` found 0.8 added half a word per reply and cost quality. |
 | go back | Jev also chooses *how far*: the last 1, 2, 3, 4, 6 or 8 words, the whole last sentence, or everything, each shown as the text it would leave. Nothing is banned afterwards. Jev is told what was tried from that point and taken back, and writes on freely. |
-| assess | 3 yes/no questions about the finished reply: `responds`, `grammatical`, `complete`. Accepted when `responds` reaches `ACCEPT_THRESHOLD` (default 0.80, adjustable per message in the UI) and `grammatical` clears a floor of 0.25 (truly broken text scores under 0.1). |
+| assess | One request about the finished reply: three yes/no questions (`responds`, `grammatical`, `complete`) and a one-to-five star rating. Accepted when `responds` reaches `ACCEPT_THRESHOLD` (default 0.80, adjustable per message in the UI) **or** the rating is 4 stars or more, and `grammatical` clears a floor of 0.10 (truly broken text scores 0.04-0.06). The UI shows the stars next to every reply. |
 | retry | On rejection Jev chooses how far to go back, exactly as above, and writing resumes, up to 3 attempts. Then the best attempt is sent, flagged as below the bar. |
 
 There are no word bans. An earlier version forbade repeating a content word and ruled out any word that had
@@ -122,6 +122,21 @@ parroted, broken).
 | "Imagine a friendly person with a small vocabulary said this..." | 13 of 16 | 0 of 10 |
 
 Wrong answers stay near zero under the new wording ("The city is Sydney." 0.02, "Seven." for 2 plus 2, 0.02).
+
+**Would a star rating be gentler?** No. With seven real replies added that read fine but had been rejected (33
+cases), two five-star scales were tried as the gate. Neither separated fair from bad as well as the yes/no question:
+
+| Acceptance rule | Fair replies passed (of 23) | Bad replies leaked (of 10) |
+| --- | --- | --- |
+| yes/no at 0.80, grammar floor 0.25 (before) | 19 | 0 |
+| stars at 3.5 or more | 20 | 0 |
+| stars at 3.0 or more | 22 | 2 |
+| yes/no at 0.80 **or** 4 stars, grammar floor 0.10 (adopted) | 21 | 0 |
+
+The harshness came mostly from the grammar floor, which at 0.25 rejected readable replies like "Sorry you're having
+had a rough day. ❤️" (0.18). Stars earn their place as a second opinion: no bad reply rates above 3.1, so accepting
+at 4 stars cannot let junk in, and it rescues good replies that miss the yes/no bar by a point. One such near-miss
+(79%, 4.2 stars) had previously triggered two rewrites that were worse and cost 2.7M tokens.
 
 ### Why it repeated the user (`experiments/parrot_rate.py`)
 

@@ -87,7 +87,9 @@ def decide_wave(decider: Decider, stage: str, state: Any, questions: Mapping[str
     chunks: list[dict[str, Question]] = [{}]
     used = 0
     for qid, q in questions.items():
-        cost = state_cost + len(json.dumps([q.instructions, dict(q.criteria or {})])) // 3
+        criteria = q.criteria or {}  # a mapping for Choice and Noul, a list of levels for Score
+        criteria = dict(criteria) if isinstance(criteria, Mapping) else list(criteria)
+        cost = state_cost + len(json.dumps([q.instructions, criteria], default=str)) // 3
         if chunks[-1] and (used + cost > WAVE_TOKEN_BUDGET or len(chunks[-1]) >= WAVE_MAX_QUESTIONS):
             chunks.append({})
             used = 0
