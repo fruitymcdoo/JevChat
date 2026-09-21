@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JevChat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>JevChat</h1>
+      <p class="sub">Every word is a decision. Engine: <code>{{ engine }}</code></p>
+    </div>
+    <div class="controls">
+      <label title="A finished reply is sent only if Jev rates it a good response with at least this probability. Otherwise it reopens its shakiest slots and retries, then falls back to its best attempt.">
+        Accept ≥ <input id="threshold" type="number" min="0" max="100" step="5" value="{{ threshold }}">%
+      </label>
+      <label title="Let Jev consider synonyms beyond the basic dictionary">
+        <input id="thesaurus" type="checkbox" checked> Thesaurus
+      </label>
+      <button id="reset" type="button">New chat</button>
+    </div>
+  </header>
+
+  <main id="log" aria-live="polite"></main>
+
+  <form id="form" autocomplete="off">
+    <input id="input" type="text" placeholder="Say something…" maxlength="2000" autofocus>
+    <button type="submit">Send</button>
+  </form>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
