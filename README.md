@@ -36,8 +36,8 @@ at a time, and every choice sees the real text so far.
 
 | Stage | What happens |
 | --- | --- |
-| plan | 1 request: what the reply should do, its tone, and "How many words should an ideal response to this query contain?" (1-3 ... 30+), which sets the word limit. |
-| kind | What kind of word comes next: pronoun, helper verb, noun, verb, ..., a word echoed from the user, punctuation, or stop. The top 3 kinds all go on. |
+| plan | 1 request: what the reply should do, its tone, "How many words should an ideal response to this query contain?" (1-3 ... 30+), which sets the word limit, and whether the reply suits an emoji (yes for good news and casual chat, no for bereavement or facts). |
+| kind | What kind of word comes next: pronoun, helper verb, noun, verb, ..., a number, an emoji (if the plan said yes; at most 2, never adjacent, and free of the word limit), a word echoed from the user, punctuation, or stop. The top 3 kinds all go on. |
 | heats | A big kind is several flat lists of 255 words by frequency (nouns: 20 lists). Every list is asked at once and sends its best 3 words to a final. |
 | finals | One flat choice per kind among the heat winners. Its top 3 are nominated; with the thesaurus on, so are synonyms of its favourite. |
 | compare | The nominees rendered as whole texts ("Sorry about your", "Sorry about that", ...). Jev picks the one that reads best, or stops, or takes back the last word (undo, only at 60%+ probability). |
@@ -77,7 +77,7 @@ first, "." last). Locking only confident slots lets a sentence grow from its anc
 - `jevchat/decider.py` — the only code that talks to Jev; normalises answers into a trace
 - `jevchat/linear.py` — the left-to-right composer (default); tuning constants at the top
 - `jevchat/composer.py` — the parallel slot-filling composer, plus the plan, judge and prompts both share
-- `jevchat/lexicon.json` — dictionary (~9,000 frequent words as flat lists per kind of word) and thesaurus (~5,100 entries)
+- `jevchat/lexicon.json` — dictionary (~9,300 entries as flat lists per kind of word: frequent words, 148 numbers as digits and words, 119 emoji each with a short description for Jev) and thesaurus (~5,100 entries)
 - `experiments/` — known-answer measurements of Jev's accuracy at each level
 - `tools/build_lexicon.py` — regenerates the lexicon from wordfreq + WordNet (`pip install nltk wordfreq`; dev-time only)
 - `templates/`, `static/` — the web UI
@@ -133,6 +133,13 @@ Left to right, same messages as every earlier version:
 
 - Multi-sentence replies are coherent for the first time, and rewinding now usually improves the reply
   (the puppy reply went from "How do you name her?" at 85% to "What breed?" at 91%).
+- Emoji land well once the plan decides whether one fits: "Wow she's lovely 🥰 how is she?" (93%, accepted first
+  try), "Congratulations on the job 🥳 you're amazing!" (91%), "Bye 💤 have yourself wonderful dreams!" (91%);
+  none for "my grandfather passed away last week".
+- Numbers work as words or digits ("what is 2 plus 2?" gives "Four.", 96%; days in a week gives "Seven.", then "7.").
+  But "How many of the letter R are in the word Strawberry?" still gives "Two.", and the judge accepts it at 90%:
+  Jev believes it. That is not a vocabulary gap. Jev does not see words as letters (0 of 27 in the spelling
+  experiment) and counting is a documented weakness; TypeSafe's own advice is to keep arithmetic in code.
 - Short answers to direct questions score low with the judge ("I do!" 48%); the 1-3 word plan leaves
   no room to say more.
 - It has no knowledge beyond what Jev carries: the capital of Australia still comes out as Sydney,

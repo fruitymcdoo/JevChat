@@ -151,17 +151,6 @@
      "such",
      "enough",
      "one",
-     "two",
-     "three",
-     "four",
-     "five",
-     "six",
-     "seven",
-     "eight",
-     "nine",
-     "ten",
-     "hundred",
-     "thousand",
      "first",
      "second",
      "last",
@@ -271,6 +260,410 @@
    ]
   },
   {
+   "key": "number",
+   "desc": "A number, as a digit (3, 12, 100) or a number word (three, twelve, hundred).",
+   "lists": [
+    [
+     "0",
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24",
+     "25",
+     "26",
+     "27",
+     "28",
+     "29",
+     "30",
+     "31",
+     "32",
+     "33",
+     "34",
+     "35",
+     "36",
+     "37",
+     "38",
+     "39",
+     "40",
+     "41",
+     "42",
+     "43",
+     "44",
+     "45",
+     "46",
+     "47",
+     "48",
+     "49",
+     "50",
+     "51",
+     "52",
+     "53",
+     "54",
+     "55",
+     "56",
+     "57",
+     "58",
+     "59",
+     "60",
+     "61",
+     "62",
+     "63",
+     "64",
+     "65",
+     "66",
+     "67",
+     "68",
+     "69",
+     "70",
+     "71",
+     "72",
+     "73",
+     "74",
+     "75",
+     "76",
+     "77",
+     "78",
+     "79",
+     "80",
+     "81",
+     "82",
+     "83",
+     "84",
+     "85",
+     "86",
+     "87",
+     "88",
+     "89",
+     "90",
+     "91",
+     "92",
+     "93",
+     "94",
+     "95",
+     "96",
+     "97",
+     "98",
+     "99",
+     "100",
+     "200",
+     "300",
+     "400",
+     "500",
+     "1000",
+     "2000",
+     "10000",
+     "100000",
+     "1000000",
+     "zero",
+     "one",
+     "two",
+     "three",
+     "four",
+     "five",
+     "six",
+     "seven",
+     "eight",
+     "nine",
+     "ten",
+     "eleven",
+     "twelve",
+     "thirteen",
+     "fourteen",
+     "fifteen",
+     "sixteen",
+     "seventeen",
+     "eighteen",
+     "nineteen",
+     "twenty",
+     "thirty",
+     "forty",
+     "fifty",
+     "sixty",
+     "seventy",
+     "eighty",
+     "ninety",
+     "hundred",
+     "thousand",
+     "million",
+     "billion",
+     "half",
+     "dozen",
+     "couple",
+     "third",
+     "fourth",
+     "fifth"
+    ]
+   ]
+  },
+  {
+   "key": "emoji",
+   "desc": "An emoji, to show a feeling or decorate the reply, usually at the end of a sentence.",
+   "lists": [
+    [
+     "\ud83d\ude00",
+     "\ud83d\ude04",
+     "\ud83d\ude0a",
+     "\ud83d\ude42",
+     "\ud83d\ude09",
+     "\ud83d\ude02",
+     "\ud83e\udd23",
+     "\ud83d\ude05",
+     "\ud83d\ude0d",
+     "\ud83e\udd70",
+     "\ud83d\ude18",
+     "\ud83d\ude0e",
+     "\ud83e\udd14",
+     "\ud83e\udd28",
+     "\ud83d\ude10",
+     "\ud83d\ude44",
+     "\ud83d\ude0f",
+     "\ud83d\ude34",
+     "\ud83e\udd71",
+     "\ud83d\ude22",
+     "\ud83d\ude2d",
+     "\ud83d\ude1e",
+     "\ud83d\ude14",
+     "\ud83d\ude1f",
+     "\ud83d\ude2c",
+     "\ud83d\ude33",
+     "\ud83d\ude31",
+     "\ud83d\ude2e",
+     "\ud83e\udd2f",
+     "\ud83d\ude21",
+     "\ud83d\ude24",
+     "\ud83e\udd17",
+     "\ud83e\udd29",
+     "\ud83e\udd73",
+     "\ud83d\ude07",
+     "\ud83e\udd12",
+     "\ud83e\udd15",
+     "\ud83e\udd7a",
+     "\ud83d\ude0b",
+     "\ud83e\udd24",
+     "\ud83d\udc4d",
+     "\ud83d\udc4e",
+     "\ud83d\udc4f",
+     "\ud83d\ude4c",
+     "\ud83d\ude4f",
+     "\ud83d\udcaa",
+     "\ud83d\udc4b",
+     "\ud83e\udd1d",
+     "\ud83e\udd1e",
+     "\ud83d\udc40",
+     "\ud83e\udef6",
+     "\u2764\ufe0f",
+     "\ud83d\udc94",
+     "\ud83d\udc95",
+     "\u2728",
+     "\ud83d\udd25",
+     "\u2b50",
+     "\ud83c\udf89",
+     "\ud83c\udf8a",
+     "\ud83c\udf82",
+     "\ud83c\udf81",
+     "\ud83c\udfc6",
+     "\ud83d\udcaf",
+     "\u2705",
+     "\u274c",
+     "\u2753",
+     "\u2757",
+     "\ud83d\udca1",
+     "\ud83d\udca4",
+     "\ud83d\udcb0",
+     "\u2600\ufe0f",
+     "\ud83c\udf27\ufe0f",
+     "\u26c8\ufe0f",
+     "\u2744\ufe0f",
+     "\ud83c\udf08",
+     "\ud83c\udf19",
+     "\ud83c\udf0a",
+     "\ud83c\udf32",
+     "\ud83c\udf38",
+     "\ud83c\udf39",
+     "\ud83c\udf40",
+     "\u26f0\ufe0f",
+     "\ud83c\udfd6\ufe0f",
+     "\ud83d\udc36",
+     "\ud83d\udc31",
+     "\ud83d\udc26",
+     "\ud83d\udc1f",
+     "\ud83d\udc34",
+     "\ud83e\udd8b",
+     "\ud83d\udc3e",
+     "\ud83c\udf55",
+     "\ud83c\udf54",
+     "\ud83c\udf70",
+     "\ud83c\udf4e",
+     "\ud83c\udf53",
+     "\u2615",
+     "\ud83c\udf75",
+     "\ud83c\udf7a",
+     "\ud83c\udf77",
+     "\ud83c\udf73",
+     "\ud83e\udd57",
+     "\ud83c\udfb5",
+     "\ud83c\udfb8",
+     "\ud83c\udfae",
+     "\ud83d\udcda",
+     "\u270f\ufe0f",
+     "\ud83c\udfac",
+     "\u26bd",
+     "\ud83c\udfc0",
+     "\ud83c\udfc3",
+     "\ud83e\udd7e",
+     "\ud83d\ude97",
+     "\u2708\ufe0f",
+     "\ud83c\udfe0",
+     "\ud83d\udcbc",
+     "\ud83d\udcbb",
+     "\ud83d\udcf1",
+     "\u23f0",
+     "\ud83d\udcc5"
+    ]
+   ],
+   "glosses": {
+    "\ud83d\ude00": "grinning face, happy",
+    "\ud83d\ude04": "big smile, delighted",
+    "\ud83d\ude0a": "warm smile, pleased",
+    "\ud83d\ude42": "slight smile, friendly",
+    "\ud83d\ude09": "wink, playful",
+    "\ud83d\ude02": "tears of joy, laughing hard",
+    "\ud83e\udd23": "rolling on the floor laughing",
+    "\ud83d\ude05": "nervous laugh, relief",
+    "\ud83d\ude0d": "heart eyes, adoring",
+    "\ud83e\udd70": "smiling with hearts, affection",
+    "\ud83d\ude18": "blowing a kiss",
+    "\ud83d\ude0e": "sunglasses, cool",
+    "\ud83e\udd14": "thinking, not sure",
+    "\ud83e\udd28": "raised eyebrow, doubtful",
+    "\ud83d\ude10": "neutral face",
+    "\ud83d\ude44": "rolling eyes, annoyed",
+    "\ud83d\ude0f": "smirk",
+    "\ud83d\ude34": "sleeping, tired",
+    "\ud83e\udd71": "yawning, bored or sleepy",
+    "\ud83d\ude22": "crying, sad",
+    "\ud83d\ude2d": "sobbing, very sad",
+    "\ud83d\ude1e": "disappointed",
+    "\ud83d\ude14": "pensive, down",
+    "\ud83d\ude1f": "worried",
+    "\ud83d\ude2c": "grimace, awkward",
+    "\ud83d\ude33": "flushed, embarrassed",
+    "\ud83d\ude31": "screaming, shocked",
+    "\ud83d\ude2e": "open mouth, surprised",
+    "\ud83e\udd2f": "mind blown, amazed",
+    "\ud83d\ude21": "angry",
+    "\ud83d\ude24": "huffing, frustrated",
+    "\ud83e\udd17": "hugging, comforting",
+    "\ud83e\udd29": "star struck, excited",
+    "\ud83e\udd73": "party face, celebrating",
+    "\ud83d\ude07": "angel, innocent",
+    "\ud83e\udd12": "sick with a thermometer",
+    "\ud83e\udd15": "hurt, bandaged head",
+    "\ud83e\udd7a": "pleading eyes",
+    "\ud83d\ude0b": "yum, tasty",
+    "\ud83e\udd24": "drooling, craving",
+    "\ud83d\udc4d": "thumbs up, agree, good",
+    "\ud83d\udc4e": "thumbs down, disagree, bad",
+    "\ud83d\udc4f": "clapping, well done",
+    "\ud83d\ude4c": "raised hands, hooray",
+    "\ud83d\ude4f": "folded hands, thanks or please",
+    "\ud83d\udcaa": "flexed arm, strong, you can do it",
+    "\ud83d\udc4b": "waving hand, hello or goodbye",
+    "\ud83e\udd1d": "handshake, deal",
+    "\ud83e\udd1e": "fingers crossed, good luck",
+    "\ud83d\udc40": "eyes, looking, curious",
+    "\ud83e\udef6": "heart hands, love and support",
+    "\u2764\ufe0f": "red heart, love",
+    "\ud83d\udc94": "broken heart",
+    "\ud83d\udc95": "two hearts, affection",
+    "\u2728": "sparkles, wonderful",
+    "\ud83d\udd25": "fire, awesome",
+    "\u2b50": "star, excellent",
+    "\ud83c\udf89": "party popper, congratulations",
+    "\ud83c\udf8a": "confetti, celebration",
+    "\ud83c\udf82": "birthday cake",
+    "\ud83c\udf81": "gift",
+    "\ud83c\udfc6": "trophy, winner",
+    "\ud83d\udcaf": "one hundred, perfect",
+    "\u2705": "check mark, yes, done",
+    "\u274c": "cross mark, no, wrong",
+    "\u2753": "question mark",
+    "\u2757": "exclamation mark, important",
+    "\ud83d\udca1": "light bulb, idea",
+    "\ud83d\udca4": "sleep",
+    "\ud83d\udcb0": "money",
+    "\u2600\ufe0f": "sun, sunny",
+    "\ud83c\udf27\ufe0f": "rain",
+    "\u26c8\ufe0f": "storm",
+    "\u2744\ufe0f": "snow, cold",
+    "\ud83c\udf08": "rainbow",
+    "\ud83c\udf19": "moon, night",
+    "\ud83c\udf0a": "wave, sea",
+    "\ud83c\udf32": "tree, forest",
+    "\ud83c\udf38": "blossom, flower",
+    "\ud83c\udf39": "rose",
+    "\ud83c\udf40": "four leaf clover, luck",
+    "\u26f0\ufe0f": "mountain",
+    "\ud83c\udfd6\ufe0f": "beach",
+    "\ud83d\udc36": "dog, puppy",
+    "\ud83d\udc31": "cat, kitten",
+    "\ud83d\udc26": "bird",
+    "\ud83d\udc1f": "fish",
+    "\ud83d\udc34": "horse",
+    "\ud83e\udd8b": "butterfly",
+    "\ud83d\udc3e": "paw prints, pet",
+    "\ud83c\udf55": "pizza",
+    "\ud83c\udf54": "burger",
+    "\ud83c\udf70": "cake, dessert",
+    "\ud83c\udf4e": "apple",
+    "\ud83c\udf53": "strawberry",
+    "\u2615": "coffee",
+    "\ud83c\udf75": "tea",
+    "\ud83c\udf7a": "beer",
+    "\ud83c\udf77": "wine",
+    "\ud83c\udf73": "cooking, frying pan",
+    "\ud83e\udd57": "salad, healthy food",
+    "\ud83c\udfb5": "music note",
+    "\ud83c\udfb8": "guitar",
+    "\ud83c\udfae": "video game",
+    "\ud83d\udcda": "books, reading, study",
+    "\u270f\ufe0f": "pencil, writing",
+    "\ud83c\udfac": "film, movie",
+    "\u26bd": "football, soccer",
+    "\ud83c\udfc0": "basketball",
+    "\ud83c\udfc3": "running",
+    "\ud83e\udd7e": "hiking boot",
+    "\ud83d\ude97": "car, driving",
+    "\u2708\ufe0f": "plane, travel",
+    "\ud83c\udfe0": "house, home",
+    "\ud83d\udcbc": "briefcase, work",
+    "\ud83d\udcbb": "laptop, computer",
+    "\ud83d\udcf1": "phone",
+    "\u23f0": "alarm clock, time",
+    "\ud83d\udcc5": "calendar, date"
+   }
+  },
+  {
    "key": "noun",
    "desc": "A noun: a person, thing, place, idea or time.",
    "lists": [
@@ -364,7 +757,6 @@
      "court",
      "fact",
      "guys",
-     "half",
      "hand",
      "level",
      "mind",
@@ -405,7 +797,6 @@
      "fucking",
      "future",
      "light",
-     "million",
      "morning",
      "police",
      "age",
@@ -500,7 +891,6 @@
      "april",
      "center",
      "county",
-     "couple",
      "english",
      "industry",
      "issues",
@@ -529,12 +919,12 @@
      "king",
      "policy",
      "society",
-     "al"
-    ],
-    [
+     "al",
      "bank",
      "church",
-     "east",
+     "east"
+    ],
+    [
      "hands",
      "movie",
      "park",
@@ -786,12 +1176,12 @@
      "letter",
      "lines",
      "material",
-     "opportunity"
-    ],
-    [
+     "opportunity",
      "plus",
      "product",
-     "secretary",
+     "secretary"
+    ],
+    [
      "sister",
      "stories",
      "unit",
@@ -1043,12 +1433,12 @@
      "prison",
      "senate",
      "somebody",
-     "stone"
-    ],
-    [
+     "stone",
      "strength",
      "users",
-     "window",
+     "window"
+    ],
+    [
      "winner",
      "bag",
      "camp",
@@ -1300,12 +1690,12 @@
      "planet",
      "relationships",
      "restaurant",
-     "scotland"
-    ],
-    [
+     "scotland",
      "shopping",
      "sugar",
-     "transport",
+     "transport"
+    ],
+    [
      "affairs",
      "appeal",
      "artists",
@@ -1430,7 +1820,6 @@
      "surgery",
      "tuesday",
      "vision",
-     "zero",
      "champion",
      "cream",
      "crisis",
@@ -1557,13 +1946,13 @@
      "sentence",
      "teeth",
      "tips",
-     "academy"
-    ],
-    [
+     "academy",
      "adam",
      "andrew",
      "bottle",
-     "bunch",
+     "bunch"
+    ],
+    [
      "category",
      "chat",
      "cheese",
@@ -1814,13 +2203,13 @@
      "bush",
      "cabinet",
      "challenges",
-     "chocolate"
-    ],
-    [
+     "chocolate",
      "coal",
      "colour",
      "criticism",
-     "davis",
+     "davis"
+    ],
+    [
      "dna",
      "formation",
      "gallery",
@@ -2071,13 +2460,13 @@
      "designer",
      "diamond",
      "economics",
-     "establishment"
-    ],
-    [
+     "establishment",
      "flower",
      "ghost",
      "guests",
-     "hockey",
+     "hockey"
+    ],
+    [
      "houston",
      "https",
      "hunting",
@@ -2328,13 +2717,13 @@
      "salary",
      "script",
      "sections",
-     "strip"
-    ],
-    [
+     "strip",
      "tube",
      "universities",
      "walter",
-     "wisconsin",
+     "wisconsin"
+    ],
+    [
      "ambassador",
      "breast",
      "cant",
@@ -2345,7 +2734,6 @@
      "cotton",
      "detroit",
      "discount",
-     "dozen",
      "engines",
      "epic",
      "exception",
@@ -2585,14 +2973,14 @@
      "rounds",
      "sa",
      "sauce",
-     "seal"
-    ],
-    [
+     "seal",
      "shield",
      "stem",
      "summit",
      "throat",
-     "tiger",
+     "tiger"
+    ],
+    [
      "toy",
      "warriors",
      "wisdom",
@@ -2842,14 +3230,14 @@
      "professionals",
      "pussy",
      "reactions",
-     "robot"
-    ],
-    [
+     "robot",
      "securities",
      "shoe",
      "speakers",
      "springs",
-     "spy",
+     "spy"
+    ],
+    [
      "suggestions",
      "suspension",
      "terrorism",
@@ -3099,14 +3487,14 @@
      "humor",
      "insight",
      "louisiana",
-     "meals"
-    ],
-    [
+     "meals",
      "mississippi",
      "nerve",
      "nightmare",
      "operators",
-     "pie",
+     "pie"
+    ],
+    [
      "platforms",
      "populations",
      "poster",
@@ -3356,14 +3744,14 @@
      "heights",
      "horn",
      "inflation",
-     "ingredients"
-    ],
-    [
+     "ingredients",
      "inspection",
      "instruction",
      "intensity",
      "inventory",
-     "invitation",
+     "invitation"
+    ],
+    [
      "lakes",
      "lecture",
      "libraries",
@@ -3613,14 +4001,14 @@
      "cigarettes",
      "cult",
      "dairy",
-     "dakota"
-    ],
-    [
+     "dakota",
      "darling",
      "diary",
      "edges",
      "entries",
-     "euro",
+     "euro"
+    ],
+    [
      "fl",
      "flags",
      "fr",
@@ -3870,14 +4258,14 @@
      "oven",
      "owen",
      "passport",
-     "penis"
-    ],
-    [
+     "penis",
      "pills",
      "planets",
      "rabbit",
      "ranges",
-     "rats",
+     "rats"
+    ],
+    [
      "rhythm",
      "ruth",
      "servers",
@@ -4127,14 +4515,14 @@
      "hampshire",
      "harassment",
      "hats",
-     "lebanon"
-    ],
-    [
+     "lebanon",
      "leeds",
      "leonard",
      "liquor",
      "loser",
-     "massage",
+     "massage"
+    ],
+    [
      "milwaukee",
      "musician",
      "nato",
@@ -4384,14 +4772,14 @@
      "infections",
      "joel",
      "lanes",
-     "licence"
-    ],
-    [
+     "licence",
      "lungs",
      "madness",
      "mandate",
      "merger",
-     "minorities",
+     "minorities"
+    ],
+    [
      "nj",
      "ph",
      "po",
@@ -4641,14 +5029,14 @@
      "governors",
      "guild",
      "han",
-     "imaging"
-    ],
-    [
+     "imaging",
      "inability",
      "incoming",
      "isaac",
      "jar",
-     "lb",
+     "lb"
+    ],
+    [
      "leicester",
      "litigation",
      "mentor",
@@ -4898,14 +5286,14 @@
      "progression",
      "ra",
      "rack",
-     "recordings"
-    ],
-    [
+     "recordings",
      "rejection",
      "reservoir",
      "riley",
      "scrap",
-     "sensation",
+     "sensation"
+    ],
+    [
      "shaft",
      "shepherd",
      "shuttle",
@@ -5155,14 +5543,14 @@
      "coral",
      "correlation",
      "correspondent",
-     "coupon"
-    ],
-    [
+     "coupon",
      "curtain",
      "curves",
      "dentist",
      "dodgers",
-     "dough",
+     "dough"
+    ],
+    [
      "envelope",
      "fatigue",
      "fellowship",
@@ -5412,7 +5800,12 @@
      "mafia",
      "manners",
      "mick",
-     "missionary"
+     "missionary",
+     "nationalism",
+     "nepal",
+     "newman",
+     "outfits",
+     "oversight"
     ]
    ]
   },
@@ -8554,7 +8947,6 @@
      "local",
      "young",
      "social",
-     "half",
      "single",
      "coming",
      "true",
@@ -8576,10 +8968,8 @@
      "fucking",
      "future",
      "low",
-     "million",
      "short",
      "red",
-     "third",
      "living",
      "major",
      "easy",
@@ -8765,12 +9155,12 @@
      "supposed",
      "sweet",
      "closed",
-     "driving"
-    ],
-    [
+     "driving",
      "established",
      "gay",
-     "glad",
+     "glad"
+    ],
+    [
      "greater",
      "largest",
      "overall",
@@ -8818,7 +9208,6 @@
      "critical",
      "digital",
      "forced",
-     "fourth",
      "fresh",
      "mental",
      "missed",
@@ -8848,7 +9237,6 @@
      "removed",
      "aware",
      "eastern",
-     "fifth",
      "impossible",
      "proud",
      "shut",
@@ -8866,7 +9254,6 @@
      "magic",
      "net",
      "owned",
-     "billion",
      "busy",
      "concerned",
      "cultural",
@@ -8974,7 +9361,6 @@
      "focused",
      "numerous",
      "quiet",
-     "twenty",
      "urban",
      "affected",
      "approved",
@@ -9003,7 +9389,6 @@
      "passing",
      "remaining",
      "worried",
-     "zero",
      "charged",
      "giant",
      "minor",
@@ -9022,9 +9407,7 @@
      "guilty",
      "improved",
      "jewish",
-     "laughing"
-    ],
-    [
+     "laughing",
      "medium",
      "relevant",
      "unable",
@@ -9032,7 +9415,9 @@
      "directed",
      "educational",
      "extreme",
-     "maximum",
+     "maximum"
+    ],
+    [
      "scared",
      "scottish",
      "appointed",
@@ -9273,15 +9658,12 @@
      "shaped",
      "sixth",
      "suitable",
-     "thirty",
      "valid",
      "vital",
      "alleged",
      "genuine",
      "improving",
-     "rejected"
-    ],
-    [
+     "rejected",
      "scary",
      "asleep",
      "automatic",
@@ -9290,7 +9672,9 @@
      "searching",
      "surrounded",
      "threatened",
-     "concluded",
+     "concluded"
+    ],
+    [
      "crossed",
      "epic",
      "fancy",
@@ -9300,7 +9684,6 @@
      "preferred",
      "ranked",
      "screaming",
-     "twelve",
      "virgin",
      "agricultural",
      "delicious",
@@ -9380,7 +9763,6 @@
      "distinct",
      "educated",
      "eligible",
-     "fifty",
      "funded",
      "integrated",
      "intelligent",
@@ -9534,11 +9916,8 @@
      "dismissed",
      "distinguished",
      "eighth",
-     "forty",
      "generous",
-     "hated"
-    ],
-    [
+     "hated",
      "incorporated",
      "loyal",
      "striking",
@@ -9550,7 +9929,9 @@
      "emerging",
      "overnight",
      "participating",
-     "ranging",
+     "ranging"
+    ],
+    [
      "ranking",
      "respective",
      "restricted",
@@ -9642,7 +10023,6 @@
      "depressed",
      "deserved",
      "encouraging",
-     "fifteen",
      "graduated",
      "harsh",
      "immune",
@@ -9684,7 +10064,6 @@
      "complaining",
      "cruel",
      "electoral",
-     "eleven",
      "excessive",
      "feminist",
      "governing",
@@ -9793,9 +10172,7 @@
      "animated",
      "answering",
      "assured",
-     "charming"
-    ],
-    [
+     "charming",
      "ethical",
      "hostile",
      "miserable",
@@ -9809,7 +10186,9 @@
      "retained",
      "specialized",
      "sunny",
-     "tremendous",
+     "tremendous"
+    ],
+    [
      "valued",
      "adorable",
      "ashamed",
@@ -10038,7 +10417,6 @@
      "philosophical",
      "relieved",
      "secular",
-     "sixteen",
      "sovereign",
      "synthetic",
      "tense",
@@ -10050,9 +10428,7 @@
      "decorated",
      "dull",
      "fashioned",
-     "incorrect"
-    ],
-    [
+     "incorrect",
      "newer",
      "optimal",
      "postal",
@@ -10067,7 +10443,9 @@
      "verified",
      "automotive",
      "costly",
-     "cuban",
+     "cuban"
+    ],
+    [
      "darker",
      "incoming",
      "offended",
@@ -10076,7 +10454,6 @@
      "prone",
      "reflecting",
      "satisfying",
-     "sixty",
      "sonic",
      "thankful",
      "unclear",
@@ -10171,13 +10548,11 @@
      "pursued",
      "seated",
      "supernatural",
-     "thirteen",
      "umbrella",
      "weaker",
      "carved",
      "credited",
      "distracted",
-     "fourteen",
      "immense",
      "juvenile",
      "metric",
@@ -10205,7 +10580,6 @@
      "promotional",
      "prospective",
      "psychiatric",
-     "seventeen",
      "sliding",
      "surplus",
      "systematic",
@@ -10307,9 +10681,7 @@
      "vicious",
      "accidental",
      "addicted",
-     "belgian"
-    ],
-    [
+     "belgian",
      "confined",
      "consolidated",
      "deliberate",
@@ -10328,11 +10700,12 @@
      "sunrise",
      "tagged",
      "twilight",
-     "unprecedented",
+     "unprecedented"
+    ],
+    [
      "woody",
      "worthless",
      "bulgarian",
-     "eighteen",
      "expired",
      "healthier",
      "homemade",
@@ -10437,7 +10810,6 @@
      "phantom",
      "prevalent",
      "questionable",
-     "seventy",
      "shouted",
      "splitting",
      "tortured",
@@ -10506,7 +10878,6 @@
      "cheapest",
      "disciplinary",
      "dreamed",
-     "eighty",
      "finite",
      "forensic",
      "forthcoming",
@@ -10564,7 +10935,29 @@
      "bacterial",
      "bankrupt",
      "brighter",
-     "childish"
+     "childish",
+     "clearer",
+     "eventual",
+     "faded",
+     "impacted",
+     "imposing",
+     "longtime",
+     "negro",
+     "null",
+     "oriental",
+     "owing",
+     "paramount",
+     "paranoid",
+     "positioning",
+     "quantitative",
+     "retarded",
+     "retro",
+     "roasted",
+     "sacked",
+     "solitary",
+     "taller",
+     "uncovered",
+     "unpaid"
     ]
    ]
   },
@@ -12197,14 +12590,6 @@
    "hereafter",
    "futurity"
   ],
-  "million": [
-   "meg",
-   "billion",
-   "trillion",
-   "zillion",
-   "jillion",
-   "gazillion"
-  ],
   "morning": [
    "morn",
    "forenoon",
@@ -12280,9 +12665,6 @@
   "soon": [
    "shortly",
    "presently"
-  ],
-  "third": [
-   "tertiary"
   ],
   "turn": [
    "become"
@@ -12804,13 +13186,6 @@
    "heart",
    "eye",
    "centerfield"
-  ],
-  "couple": [
-   "twosome",
-   "duo",
-   "duet",
-   "mates",
-   "match"
   ],
   "dead": [
    "beat",
@@ -15851,9 +16226,6 @@
    "weigh",
    "consider"
   ],
-  "fourth": [
-   "quaternary"
-  ],
   "fresh": [
    "bracing",
    "brisk",
@@ -18138,9 +18510,6 @@
    "job",
    "chore"
   ],
-  "twenty": [
-   "xx"
-  ],
   "affected": [
    "unnatural",
    "moved",
@@ -18476,20 +18845,6 @@
    "disturbed",
    "upset",
    "apprehensive"
-  ],
-  "zero": [
-   "nothing",
-   "nil",
-   "nix",
-   "nada",
-   "null",
-   "aught",
-   "cipher",
-   "cypher",
-   "naught",
-   "zilch",
-   "zip",
-   "zippo"
   ],
   "champion": [
    "champ",
@@ -22598,9 +22953,6 @@
    "desirable",
    "worthy"
   ],
-  "thirty": [
-   "xxx"
-  ],
   "vital": [
    "critical",
    "lively"
@@ -23072,10 +23424,6 @@
    "deduction",
    "rebate"
   ],
-  "dozen": [
-   "twelve",
-   "xii"
-  ],
   "epic": [
    "epos"
   ],
@@ -23236,10 +23584,6 @@
    "dramaturgy",
    "dramatics",
    "field"
-  ],
-  "twelve": [
-   "xii",
-   "dozen"
   ],
   "virgin": [
    "virgo"
@@ -24357,9 +24701,6 @@
   "execution": [
    "executing",
    "performance"
-  ],
-  "fifty": [
-   "l"
   ],
   "followers": [
    "following",
@@ -26324,10 +26665,6 @@
    "leaf",
    "riff"
   ],
-  "forty": [
-   "xl",
-   "twoscore"
-  ],
   "hated": [
    "despised",
    "detested",
@@ -27870,9 +28207,6 @@
   "encouraging": [
    "supporting"
   ],
-  "fifteen": [
-   "xv"
-  ],
   "ga": [
    "tabun",
    "gallium",
@@ -28451,9 +28785,6 @@
   ],
   "easter": [
    "easterly"
-  ],
-  "eleven": [
-   "xi"
   ],
   "excessive": [
    "inordinate",
@@ -33064,9 +33395,6 @@
   "sigh": [
    "suspire"
   ],
-  "sixteen": [
-   "xvi"
-  ],
   "sovereign": [
    "monarch"
   ],
@@ -33625,10 +33953,6 @@
   "siege": [
    "besieging",
    "beleaguering"
-  ],
-  "sixty": [
-   "lx",
-   "threescore"
   ],
   "sleeve": [
    "arm"
@@ -34915,9 +35239,6 @@
   "supernatural": [
    "occult"
   ],
-  "thirteen": [
-   "xiii"
-  ],
   "tomb": [
    "grave"
   ],
@@ -35002,9 +35323,6 @@
   "dm": [
    "decimeter",
    "decimetre"
-  ],
-  "fourteen": [
-   "xiv"
   ],
   "gossip": [
    "chitchat",
@@ -35410,9 +35728,6 @@
    "trumpery",
    "applesauce",
    "codswallop"
-  ],
-  "seventeen": [
-   "xvii"
   ],
   "sodium": [
    "na"
@@ -36611,6 +36926,9 @@
   "missionary": [
    "missioner"
   ],
+  "nationalism": [
+   "patriotism"
+  ],
   "naughty": [
    "blue",
    "gamy",
@@ -36632,6 +36950,13 @@
   "overly": [
    "excessively",
    "too"
+  ],
+  "oversight": [
+   "inadvertence",
+   "supervision",
+   "supervising",
+   "superintendence",
+   "lapse"
   ],
   "persian": [
    "iranian"
@@ -36806,9 +37131,6 @@
   ],
   "alternatively": [
    "instead"
-  ],
-  "eighteen": [
-   "xviii"
   ],
   "healthier": [
    "fitter",
@@ -37182,9 +37504,6 @@
    "confutable",
    "confutative"
   ],
-  "seventy": [
-   "lxx"
-  ],
   "shouted": [
    "yelled"
   ],
@@ -37412,10 +37731,6 @@
    "corrective",
    "disciplinal"
   ],
-  "eighty": [
-   "lxxx",
-   "fourscore"
-  ],
   "forthcoming": [
    "extroverted",
    "outgoing",
@@ -37637,13 +37952,75 @@
   "childish": [
    "infantile"
   ],
+  "faded": [
+   "bleached",
+   "washy",
+   "attenuate",
+   "attenuated",
+   "weakened"
+  ],
   "firstly": [
    "first",
    "foremost"
   ],
+  "impacted": [
+   "wedged"
+  ],
+  "imposing": [
+   "baronial",
+   "noble",
+   "stately",
+   "distinguished",
+   "grand",
+   "magisterial"
+  ],
+  "null": [
+   "void"
+  ],
+  "owing": [
+   "outstanding",
+   "undischarged"
+  ],
+  "paramount": [
+   "overriding",
+   "predominant",
+   "predominate",
+   "preponderant",
+   "preponderating"
+  ],
+  "positioning": [
+   "aligning"
+  ],
+  "retro": [
+   "retroactive"
+  ],
   "rightly": [
    "justly",
    "justifiedly"
+  ],
+  "roasted": [
+   "roast"
+  ],
+  "sacked": [
+   "despoiled",
+   "pillaged",
+   "raped",
+   "ravaged"
+  ],
+  "solitary": [
+   "lone",
+   "lonely",
+   "nongregarious",
+   "nonsocial",
+   "alone"
+  ],
+  "uncovered": [
+   "exposed"
+  ],
+  "unpaid": [
+   "volunteer",
+   "amateur",
+   "recreational"
   ],
   "downstairs": [
    "below"

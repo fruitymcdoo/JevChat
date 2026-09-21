@@ -60,7 +60,7 @@ function handleEvent(ev, msg, trace) {
     const layout = ev.slots
       ? `${ev.sentences} sentence${ev.sentences === 1 ? "" : "s"} × ${ev.slots} slots`
       : `up to ${ev.max_words} words`;
-    addStep(trace, `plan: ${p.move} · ${p.tone} · ${p.length} words → ${layout}`, "", ev.trace);
+    addStep(trace, `plan: ${p.move} · ${p.tone} · ${p.length} words${p.emoji === "yes" ? " · emoji" : ""} → ${layout}`, "", ev.trace);
   } else if (ev.type === "token") {
     msg.classList.remove("pending");
     bubble.textContent = ev.text;

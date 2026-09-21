@@ -108,6 +108,14 @@ PLAN = {
         },
     ),
 }
+PLAN["emoji"] = (
+    "Think about the best possible reply to the user's message. Would it include an emoji?",
+    {
+        "yes": "Yes. The reply should end with one fitting emoji, as a friendly person would in a casual chat.",
+        "no": "No. Plain words suit this reply better, because the topic is serious, factual or formal.",
+    },
+)
+
 # How each answer is laid out: (sentences, words per sentence). Parallel slot filling is
 # sharp up to about nine slots and blurs beyond that, so longer replies are written one
 # sentence at a time, each seeing the finished sentences before it.
@@ -248,7 +256,7 @@ class Composer:
         def ask_word(i: int, k: str, options: list[str]) -> Choice:
             return Choice(
                 instructions=WRITING + view(slots, i, prefix) + f"Suppose the marked slot holds {a_kind(k)}. Exactly which word is it?" + WORD_HINT,
-                criteria={w: None for w in options},
+                criteria={w: self.nodes.get(k, {}).get("glosses", {}).get(w) for w in options},
             )
 
         questions = {

@@ -41,10 +41,11 @@ SYNONYMS = 3  # thesaurus: extra nominees for each kind's best word
 MAX_UNDOS = 3  # per attempt, so going back can never loop forever
 UNDO_MIN_P = 0.6  # undo only when Jev prefers it to all continuations combined, with margin
 MAX_ATTEMPTS = 3  # drafts judged per reply
+MAX_EMOJI = 2  # per reply, and never two in a row: they don't count as words, so they need their own limit
 GRAMMAR_MIN = 0.5  # a reply must also read as correct English; `responds` alone passes broken grammar
 
 MAX_WORDS = {"1-3": 3, "4-6": 6, "7-10": 10, "10-20": 20, "20-30": 30, "30+": 40}
-OPEN_KINDS = {"noun", "verb", "adjective", "adverb", "social_word", "echo"}  # not worth saying twice
+OPEN_KINDS = {"noun", "verb", "adjective", "adverb", "social_word", "echo", "emoji"}  # not worth saying twice
 
 WRITING = TASK_CONTEXT + "The reply is written one word at a time, from left to right. "
 
@@ -61,6 +62,12 @@ class LinearComposer:
         lexicon = lexicon or load_lexicon()
         self.nodes = {n["key"]: n for n in lexicon["tree"]}
         self.thesaurus: dict[str, list[str]] = lexicon["thesaurus"]
+        self.emoji = {w for l in self.nodes.get("emoji", {}).get("lists", []) for w in l}
+
+    def _ended(self, tokens: list[str]) -> bool:
+        """Does the text close a sentence? An emoji may trail the closing mark: "Congratulations! 🎉"."""
+        spoken = [t for t in tokens if t not in self.emoji]
+        return bool(spoken) and spoken[-1] in SENTENCE_END
 
     def _wave(self, stage: str, state: dict, questions: dict, trace: list, labels: dict | None = None) -> dict:
         if not questions:
@@ -72,10 +79,11 @@ class LinearComposer:
     # -- one word -----------------------------------------------------------
 
     def _next_token(self, state: dict, tokens: list[str], echo: list[str], force_end: bool, thesaurus: bool,
-                    trace: list, banned: set[str], can_undo: bool) -> tuple[str, float]:
+                    trace: list, banned: set[str], can_undo: bool, at_limit: bool = False,
+                    wants_emoji: bool = True) -> tuple[str, float]:
         """Returns (a token, or the END / UNDO sentinel) and how decisively it won."""
         last = tokens[-1] if tokens else None
-        after_punct = last is None or last in SENTENCE_END or last == ","
+        after_punct = last is None or last in SENTENCE_END or last == "," or last in self.emoji
         here = WRITING + view(tokens)
 
         if force_end:  # out of words: only let Jev choose how the sentence closes
@@ -84,13 +92,15 @@ class LinearComposer:
             return PUNCTUATION[self._wave("closing mark", state, {"mark": q}, trace)["mark"].value][0], 1.0
 
         # wave 1: kind of word. The top few all go on, not just the winner.
-        kinds = {k: n["desc"] for k, n in self.nodes.items()}
+        kinds = {k: n["desc"] for k, n in self.nodes.items() if k != "emoji" or wants_emoji}
         if echo:
             kinds["echo"] = "A word repeated from the user's own message, because the reply has to name the very same thing, such as a name."
         if not after_punct:
             kinds["punctuation"] = "A punctuation mark (. ? ! ,), because the phrase or sentence written so far is complete."
-        if last in SENTENCE_END:
+        if self._ended(tokens):
             kinds["END"] = "Nothing. The reply so far is already a complete reply and should stop here."
+        if at_limit:
+            kinds = {k: d for k, d in kinds.items() if k in ("emoji", "END")}
         q = Choice(
             instructions=here + "What has to come next so that the reply grows into natural, grammatical English that responds to the user?",
             criteria=kinds,
@@ -106,7 +116,7 @@ class LinearComposer:
         def ask_word(k: str, options: list[str]) -> Choice:
             return Choice(
                 instructions=here + f"Suppose the next word is {a_kind(k)}. Exactly which word is it?" + WORD_HINT,
-                criteria={w: None for w in options},
+                criteria={w: self.nodes.get(k, {}).get("glosses", {}).get(w) for w in options},
             )
 
         # wave 2: heats, for every big kind among the branches, every list at once
@@ -211,16 +221,22 @@ class LinearComposer:
             attempt += 1
             undos_left = MAX_UNDOS
             while True:  # the word loop
-                n_words = sum(t not in SENTENCE_END and t != "," for t in tokens)
-                force_end = n_words >= max_words and tokens[-1] not in SENTENCE_END
-                if n_words >= max_words and not force_end:
+                n_words = sum(t not in SENTENCE_END and t != "," and t not in self.emoji for t in tokens)  # emoji are free
+                force_end = n_words >= max_words and not self._ended(tokens)
+                n_emoji = sum(t in self.emoji for t in tokens)
+                may_emoji = picks.get("emoji") == "yes" and n_emoji < MAX_EMOJI and not (tokens and tokens[-1] in self.emoji)
+                at_limit = n_words >= max_words and not force_end  # out of words, sentence closed: an emoji or nothing
+                if at_limit and not may_emoji:
+                    break
+                if len(tokens) >= max_words * 2 + MAX_EMOJI:  # backstop; punctuation is free too
                     break
                 state = {"conversation_so_far": recent, "user_message": user_message,
                          "reply_plan": plan, "reply_so_far": render(tokens)}
                 trace = []
                 token, p = self._next_token(state, tokens, echo, force_end, thesaurus, trace,
                                             banned=banned.get(tuple(tokens), set()),
-                                            can_undo=bool(tokens) and undos_left > 0 and not force_end)
+                                            can_undo=bool(tokens) and undos_left > 0 and not force_end and not at_limit,
+                                            at_limit=at_limit, wants_emoji=may_emoji)
                 tally(trace)
                 if token == "END":
                     yield {"type": "end", "trace": trace}

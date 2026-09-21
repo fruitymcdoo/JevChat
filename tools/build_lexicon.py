@@ -45,7 +45,7 @@ CLOSED = {
     "determiner": (
         "A word that goes before a noun to point at it or count it, like the, a, some, any, every, many or more.",
         "the a an some any no every each all both many much more most few little less several another other such "
-        "enough one two three four five six seven eight nine ten hundred thousand first second last next".split(),
+        "enough one first second last next".split(),
     ),
     "preposition": (
         "A preposition, which links to a noun, like of, in, on, at, with, about, for or to.",
@@ -61,6 +61,41 @@ CLOSED = {
         "hello hi hey yes no yeah nope thanks thank please sorry okay ok sure wow oh ah well hmm goodbye bye "
         "welcome congratulations cheers haha not never".split(),
     ),
+}
+
+NUMBERS = (
+    [str(n) for n in range(0, 101)] + ["200", "300", "400", "500", "1000", "2000", "10000", "100000", "1000000"]
+    + "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen "
+      "eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion "
+      "half dozen couple third fourth fifth".split()
+)
+
+# Emoji carry a short description, because the symbol alone tells Jev little.
+EMOJI = {
+    "😀": "grinning face, happy", "😄": "big smile, delighted", "😊": "warm smile, pleased", "🙂": "slight smile, friendly",
+    "😉": "wink, playful", "😂": "tears of joy, laughing hard", "🤣": "rolling on the floor laughing", "😅": "nervous laugh, relief",
+    "😍": "heart eyes, adoring", "🥰": "smiling with hearts, affection", "😘": "blowing a kiss", "😎": "sunglasses, cool",
+    "🤔": "thinking, not sure", "🤨": "raised eyebrow, doubtful", "😐": "neutral face", "🙄": "rolling eyes, annoyed",
+    "😏": "smirk", "😴": "sleeping, tired", "🥱": "yawning, bored or sleepy", "😢": "crying, sad", "😭": "sobbing, very sad",
+    "😞": "disappointed", "😔": "pensive, down", "😟": "worried", "😬": "grimace, awkward", "😳": "flushed, embarrassed",
+    "😱": "screaming, shocked", "😮": "open mouth, surprised", "🤯": "mind blown, amazed", "😡": "angry", "😤": "huffing, frustrated",
+    "🤗": "hugging, comforting", "🤩": "star struck, excited", "🥳": "party face, celebrating", "😇": "angel, innocent",
+    "🤒": "sick with a thermometer", "🤕": "hurt, bandaged head", "🥺": "pleading eyes", "😋": "yum, tasty", "🤤": "drooling, craving",
+    "👍": "thumbs up, agree, good", "👎": "thumbs down, disagree, bad", "👏": "clapping, well done", "🙌": "raised hands, hooray",
+    "🙏": "folded hands, thanks or please", "💪": "flexed arm, strong, you can do it", "👋": "waving hand, hello or goodbye",
+    "🤝": "handshake, deal", "🤞": "fingers crossed, good luck", "👀": "eyes, looking, curious", "🫶": "heart hands, love and support",
+    "❤️": "red heart, love", "💔": "broken heart", "💕": "two hearts, affection", "✨": "sparkles, wonderful", "🔥": "fire, awesome",
+    "⭐": "star, excellent", "🎉": "party popper, congratulations", "🎊": "confetti, celebration", "🎂": "birthday cake", "🎁": "gift",
+    "🏆": "trophy, winner", "💯": "one hundred, perfect", "✅": "check mark, yes, done", "❌": "cross mark, no, wrong",
+    "❓": "question mark", "❗": "exclamation mark, important", "💡": "light bulb, idea", "💤": "sleep", "💰": "money",
+    "☀️": "sun, sunny", "🌧️": "rain", "⛈️": "storm", "❄️": "snow, cold", "🌈": "rainbow", "🌙": "moon, night", "🌊": "wave, sea",
+    "🌲": "tree, forest", "🌸": "blossom, flower", "🌹": "rose", "🍀": "four leaf clover, luck", "⛰️": "mountain", "🏖️": "beach",
+    "🐶": "dog, puppy", "🐱": "cat, kitten", "🐦": "bird", "🐟": "fish", "🐴": "horse", "🦋": "butterfly", "🐾": "paw prints, pet",
+    "🍕": "pizza", "🍔": "burger", "🍰": "cake, dessert", "🍎": "apple", "🍓": "strawberry", "☕": "coffee", "🍵": "tea",
+    "🍺": "beer", "🍷": "wine", "🍳": "cooking, frying pan", "🥗": "salad, healthy food",
+    "🎵": "music note", "🎸": "guitar", "🎮": "video game", "📚": "books, reading, study", "✏️": "pencil, writing", "🎬": "film, movie",
+    "⚽": "football, soccer", "🏀": "basketball", "🏃": "running", "🥾": "hiking boot", "🚗": "car, driving", "✈️": "plane, travel",
+    "🏠": "house, home", "💼": "briefcase, work", "💻": "laptop, computer", "📱": "phone", "⏰": "alarm clock, time", "📅": "calendar, date",
 }
 
 POS_NAMES = {"n": "noun", "v": "verb", "a": "adjective", "r": "adverb"}
@@ -102,7 +137,7 @@ def synonyms(word: str, pos: str) -> list[str]:
 
 
 def main():
-    closed_words = {w for _, words in CLOSED.values() for w in words}
+    closed_words = {w for _, words in CLOSED.values() for w in words} | set(NUMBERS)
     words_of: dict[str, list[str]] = defaultdict(list)
     thesaurus: dict[str, list[str]] = {}
 
@@ -119,10 +154,16 @@ def main():
                 if syn:
                     thesaurus.setdefault(word, syn)
 
-    def node(key, desc, words):
-        return {"key": key, "desc": desc, "lists": [words[i:i + MAX_LEAF] for i in range(0, len(words), MAX_LEAF)]}
+    def node(key, desc, words, glosses=None):
+        n = {"key": key, "desc": desc, "lists": [words[i:i + MAX_LEAF] for i in range(0, len(words), MAX_LEAF)]}
+        if glosses:
+            n["glosses"] = glosses  # word -> short description shown to Jev alongside it
+        return n
 
     tree = [node(k, desc, words) for k, (desc, words) in CLOSED.items()]
+    tree.append(node("number", "A number, as a digit (3, 12, 100) or a number word (three, twelve, hundred).", NUMBERS))
+    tree.append(node("emoji", "An emoji, to show a feeling or decorate the reply, usually at the end of a sentence.",
+                     list(EMOJI), glosses=EMOJI))
     tree.append(node("noun", "A noun: a person, thing, place, idea or time.", words_of["noun"]))
     tree.append(node("verb", "A main verb: an action, an event or a state, in any tense or form.", words_of["verb"]))
     tree.append(node("adjective", "An adjective, which describes what something is like, such as good, big, happy, new or hard.", words_of["adjective"]))
