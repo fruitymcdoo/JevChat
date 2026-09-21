@@ -43,7 +43,7 @@ HEAT_WINNERS = 3  # words each flat list sends to its kind's final
 WORDS_PER_BRANCH = 3  # nominees taken from each kind's final
 SYNONYMS = 3  # thesaurus: extra nominees for each kind's best word
 MAX_UNDOS = 3  # times per attempt Jev may choose to go back, so it can never loop forever
-UNDO_MIN_P = 0.6  # go back only when Jev prefers it to all continuations combined, with margin
+UNDO_MIN_P = 0.8  # go back only when Jev is this sure; at 0.6 it still backed out of perfectly good starts
 BACK_STEPS = (1, 2, 3, 4, 6, 8)  # how many words Jev may take back at once (plus: the sentence, everything)
 MAX_ATTEMPTS = 3  # drafts judged per reply
 MAX_EMOJI = 2  # per reply, and never two in a row: they don't count as words, so they need their own limit
@@ -120,6 +120,10 @@ class LinearComposer:
             return MIN_BIG_BRANCH_P if k in self.nodes and len(self.nodes[k]["lists"]) > 1 else MIN_BRANCH_P
 
         branches = {k: probs[k] for k in ranked[:BRANCHES] if k == ranked[0] or probs[k] >= floor(k)}
+        if set(branches) == {"END"} and len(ranked) > 1:
+            # Stopping must compete with a real way of carrying on. Offered only "stop" or "go back",
+            # Jev picks "go back" at 80%+ simply because it isn't finished talking.
+            branches[ranked[1]] = probs[ranked[1]]
 
         def allowed(words: list[str]) -> list[str]:
             return [w for w in words if w != last]  # the only rule: no stammering ("the the"). Any word may come back later.
