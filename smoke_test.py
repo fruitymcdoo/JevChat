@@ -54,6 +54,8 @@ for msg in SCRIPT:
         elif kind == "assess":
             verdict = "ACCEPT" if ev["accepted"] else "reject"
             print(f"      judged:   {ev['text']!r}  {ev['scores']}  {verdict}")
+        elif kind == "back":
+            print(f"      went back: took back {ev['removed']!r} -> {ev['text']!r}")
         elif kind == "rewind":
             print(f"      rewind:   rule out {ev['token']!r} (won with {ev['strength']:.2f}) -> {ev['text']!r}")
         elif kind == "reopen":

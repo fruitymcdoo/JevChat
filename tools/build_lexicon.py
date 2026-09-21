@@ -19,10 +19,10 @@ from pathlib import Path
 from nltk.corpus import wordnet as wn
 from wordfreq import top_n_list
 
-TOP_N = 14000
+TOP_N = 40000
 MAX_LEAF = 255  # Jev's limit on Choice options
 MAX_SYNONYMS = 12
-MAX_LISTS = {"noun": 20, "verb": 12, "adjective": 8, "adverb": 3}  # x255 words; every list is a question per slot, so this is the cost dial
+MAX_LISTS = {"noun": 40, "verb": 20, "adjective": 14, "adverb": 4}  # x255 words; every list is a question per slot, so this is the cost dial
 
 # Closed-class words: WordNet doesn't cover them, and they're a small fixed set.
 CLOSED = {
@@ -123,6 +123,12 @@ def pos_profile(word: str) -> dict[str, float]:
     return profile
 
 
+def is_proper(word: str) -> bool:
+    """A name (Canberra, Shakespeare): WordNet only ever spells it with a capital."""
+    names = [l.name() for s in wn.synsets(word, "n") for l in s.lemmas() if l.name().lower() == word]
+    return bool(names) and all(n[0].isupper() for n in names)
+
+
 def synonyms(word: str, pos: str) -> list[str]:
     lemma = wn.morphy(word, pos)
     if lemma != word:  # inflected form: a lemma synonym wouldn't fit the sentence
@@ -170,13 +176,15 @@ def main():
     tree.append(node("adverb", "An adverb, which says how, how much, when or where, like very, really, now, too, always or just.", words_of["adverb"]))
 
     out = Path(__file__).resolve().parents[1] / "jevchat" / "lexicon.json"
-    out.write_text(json.dumps({"tree": tree, "thesaurus": thesaurus}, indent=1), encoding="utf-8")
+    proper = sorted(w for w in words_of["noun"] if is_proper(w))
+    out.write_text(json.dumps({"tree": tree, "thesaurus": thesaurus, "proper": proper}, indent=1), encoding="utf-8")
+    print(f"proper nouns: {len(proper)}, e.g. {proper[:12]}")
 
     for n in tree:
         print(f"{n['key']:14} {sum(map(len, n['lists'])):5} words in {len(n['lists'])} list(s)")
     everything = {w for n in tree for l in n["lists"] for w in l}
     print(f"total {len(everything)} distinct words, thesaurus entries: {len(thesaurus)}  ->  {out}")
-    probe = "exhausting dish miserable pets make try view excited news".split()
+    probe = "exhausting coconut pineapple rum blend blender cream juice canberra shakespeare bethesda wavelength scatter".split()
     print("coverage probe:", {w: [n["key"] for n in tree if any(w in l for l in n["lists"])] for w in probe})
 
 

@@ -5,7 +5,8 @@ a whole word when it can see a real sentence (95% from a flat list of 255), and 
 when the choice is removed from that (blank neighbours, abstract categories, letters).
 Writing left to right means every choice sees the real text so far.
 
-  1. plan      one request: what the reply should do, its tone, and how many words.
+  1. plan      one request: what the reply should do, its tone, how many words, and
+               whether an emoji suits it.
   2. per word  four waves:
                  kind     what kind of word comes next (or punctuation, or stop);
                           the top few kinds all go on
@@ -13,10 +14,12 @@ Writing left to right means every choice sees the real text so far.
                           list is asked at once and sends its best few to a final
                  finals   one flat choice per kind among the heat winners
                  compare  the nominees shown as whole texts; Jev picks the one that
-                          reads best, or stops, or takes back the last word
-  3. assess    Jev judges the finished reply against the goal. If it falls short,
-               the word Jev was least sure of is ruled out at its position and
-               writing resumes from there.
+                          reads best, or stops, or goes back
+  3. go back   when Jev chooses to go back it also chooses how far: one word, a few,
+               the sentence, or everything. Nothing is banned afterwards. Jev is simply
+               told what was tried there and taken back, and writes on freely.
+  4. assess    Jev judges the finished reply against the goal. If it falls short, Jev
+               chooses how far to go back and writing resumes.
 
 Code owns the dictionary, the loop, the limits and the typography. Jev owns every
 judgment about what to say.
@@ -35,25 +38,31 @@ from .decider import Decider, decide_wave
 
 BRANCHES = 3  # top kinds of word that go on to the word search
 MIN_BRANCH_P = 0.10  # ...if at least this probable
+MIN_BIG_BRANCH_P = 0.20  # a big kind (nouns: 40 lists) costs far more to search, so it has to be likelier
 HEAT_WINNERS = 3  # words each flat list sends to its kind's final
 WORDS_PER_BRANCH = 3  # nominees taken from each kind's final
 SYNONYMS = 3  # thesaurus: extra nominees for each kind's best word
-MAX_UNDOS = 3  # per attempt, so going back can never loop forever
-UNDO_MIN_P = 0.6  # undo only when Jev prefers it to all continuations combined, with margin
+MAX_UNDOS = 3  # times per attempt Jev may choose to go back, so it can never loop forever
+UNDO_MIN_P = 0.6  # go back only when Jev prefers it to all continuations combined, with margin
+BACK_STEPS = (1, 2, 3, 4, 6, 8)  # how many words Jev may take back at once (plus: the sentence, everything)
 MAX_ATTEMPTS = 3  # drafts judged per reply
 MAX_EMOJI = 2  # per reply, and never two in a row: they don't count as words, so they need their own limit
-GRAMMAR_MIN = 0.5  # a reply must also read as correct English; `responds` alone passes broken grammar
+GRAMMAR_MIN = 0.25  # a floor, not a bar: long replies with a slip score 0.3-0.6, truly broken text under 0.1
 
 MAX_WORDS = {"1-3": 3, "4-6": 6, "7-10": 10, "10-20": 20, "20-30": 30, "30+": 40}
-OPEN_KINDS = {"noun", "verb", "adjective", "adverb", "social_word", "echo", "emoji"}  # not worth saying twice
 
 WRITING = TASK_CONTEXT + "The reply is written one word at a time, from left to right. "
 
 
-def view(tokens: list[str]) -> str:
+def view(tokens: list[str], taken_back: list[str] = ()) -> str:
     if not tokens:
-        return "The reply has not started yet, so we are choosing its first word. "
-    return f'Here is the reply so far: "{render(tokens)}". We are choosing what comes right after it. '
+        text = "The reply has not started yet, so we are choosing its first word. "
+    else:
+        text = f'Here is the reply so far: "{render(tokens)}". We are choosing what comes right after it. '
+    if taken_back:
+        tried = " and ".join(f'"{t}"' for t in taken_back[-3:])
+        text += f"We already tried continuing from here with {tried} and took it back, so the reply needs to go a different way. "
+    return text
 
 
 class LinearComposer:
@@ -79,12 +88,12 @@ class LinearComposer:
     # -- one word -----------------------------------------------------------
 
     def _next_token(self, state: dict, tokens: list[str], echo: list[str], force_end: bool, thesaurus: bool,
-                    trace: list, banned: set[str], can_undo: bool, at_limit: bool = False,
-                    wants_emoji: bool = True) -> tuple[str, float]:
+                    trace: list, taken_back: list[str], heats_cache: dict, can_undo: bool,
+                    at_limit: bool = False, wants_emoji: bool = True) -> tuple[str, float]:
         """Returns (a token, or the END / UNDO sentinel) and how decisively it won."""
         last = tokens[-1] if tokens else None
         after_punct = last is None or last in SENTENCE_END or last == "," or last in self.emoji
-        here = WRITING + view(tokens)
+        here = WRITING + view(tokens, taken_back)
 
         if force_end:  # out of words: only let Jev choose how the sentence closes
             marks = {k: d for k, (s, d) in PUNCTUATION.items() if s in SENTENCE_END}
@@ -107,11 +116,13 @@ class LinearComposer:
         )
         probs = self._wave("kind of word", state, {"kind": q}, trace)["kind"].probabilities
         ranked = sorted(probs, key=probs.get, reverse=True)
-        branches = {k: probs[k] for k in ranked[:BRANCHES] if k == ranked[0] or probs[k] >= MIN_BRANCH_P}
+        def floor(k: str) -> float:
+            return MIN_BIG_BRANCH_P if k in self.nodes and len(self.nodes[k]["lists"]) > 1 else MIN_BRANCH_P
 
-        def allowed(k: str, words: list[str]) -> list[str]:
-            used = (set(tokens) if k in OPEN_KINDS else {last}) | banned
-            return [w for w in words if w not in used]
+        branches = {k: probs[k] for k in ranked[:BRANCHES] if k == ranked[0] or probs[k] >= floor(k)}
+
+        def allowed(words: list[str]) -> list[str]:
+            return [w for w in words if w != last]  # the only rule: no stammering ("the the"). Any word may come back later.
 
         def ask_word(k: str, options: list[str]) -> Choice:
             return Choice(
@@ -119,16 +130,21 @@ class LinearComposer:
                 criteria={w: self.nodes.get(k, {}).get("glosses", {}).get(w) for w in options},
             )
 
-        # wave 2: heats, for every big kind among the branches, every list at once
+        # wave 2: heats, for every big kind among the branches, every list at once.
+        # Going back and writing forward again revisits the same text, so heat results are remembered.
+        big = [k for k in branches if k in self.nodes and len(self.nodes[k]["lists"]) > 1]
         questions = {
-            f"{k}:{j}": ask_word(k, allowed(k, words))
-            for k in branches if k in self.nodes and len(self.nodes[k]["lists"]) > 1
-            for j, words in enumerate(self.nodes[k]["lists"]) if allowed(k, words)
+            f"{k}:{j}": ask_word(k, allowed(words))
+            for k in big if (tuple(tokens), k) not in heats_cache
+            for j, words in enumerate(self.nodes[k]["lists"])
         }
-        finalists: dict[str, list[str]] = {}
+        fresh: dict[str, list[str]] = {}
         for qid, d in self._wave("heats", state, questions, trace).items():
             top = sorted(d.probabilities, key=d.probabilities.get, reverse=True)[:HEAT_WINNERS]
-            finalists.setdefault(qid.split(":")[0], []).extend(top)
+            fresh.setdefault(qid.split(":")[0], []).extend(top)
+        for k, words in fresh.items():
+            heats_cache[(tuple(tokens), k)] = words
+        finalists = {k: heats_cache[(tuple(tokens), k)] for k in big}
 
         # wave 3: finals, one flat choice per kind
         questions = {}
@@ -137,9 +153,9 @@ class LinearComposer:
                 continue
             if k == "punctuation":
                 questions[k] = Choice(instructions=here + "Suppose a punctuation mark comes next. Which one is it?",
-                                      criteria={p: d for p, (s, d) in PUNCTUATION.items() if s not in banned})
+                                      criteria={p: d for p, (_, d) in PUNCTUATION.items()})
                 continue
-            options = allowed(k, echo) if k == "echo" else finalists.get(k) or allowed(k, self.nodes[k]["lists"][0])
+            options = allowed(echo) if k == "echo" else finalists.get(k) or allowed(self.nodes[k]["lists"][0])
             if options:
                 questions[k] = ask_word(k, list(dict.fromkeys(options)))
         nominees: dict[str, None] = {}  # ordered set of candidate tokens
@@ -149,7 +165,7 @@ class LinearComposer:
                 nominees.setdefault(PUNCTUATION[w][0] if k == "punctuation" else w)
             if thesaurus and k not in ("echo", "punctuation"):  # thesaurus option: widen the field
                 for syn in self.thesaurus.get(top[0], [])[:SYNONYMS]:
-                    if syn not in tokens and syn not in banned:
+                    if syn != last:
                         nominees.setdefault(syn)
 
         # wave 4: compare whole texts
@@ -158,10 +174,8 @@ class LinearComposer:
         if "END" in branches:
             criteria["END"] = f'Stop here. The finished reply is exactly: "{render(tokens)}"'
         if can_undo:
-            criteria["UNDO"] = (
-                f'Go back. The last word "{last}" was a mistake and none of the options above can rescue it. '
-                f'Delete it, leaving: "{render(tokens[:-1])}"'
-            )
+            criteria["UNDO"] = ("Go back. The reply has gone wrong and none of the options above can rescue it, "
+                                "so some of the last words should be deleted.")
         if not criteria:
             return "END", 1.0
         if len(criteria) == 1:
@@ -181,11 +195,40 @@ class LinearComposer:
             p = probs[pick]
         return candidates.get(pick, pick), p
 
+    # -- going back -----------------------------------------------------------
+
+    def _how_far_back(self, state: dict, tokens: list[str], why: str, trace: list) -> int:
+        """Jev decides how many tokens to delete from the end. Returns at least 1."""
+        cuts: dict[int, str] = {}  # tokens removed -> description
+        spoken = [i for i, t in enumerate(tokens) if t not in SENTENCE_END and t != "," and t not in self.emoji]
+        for n in BACK_STEPS:  # n counts words; punctuation and emoji after the cut go with them
+            if n < len(spoken):
+                cut = len(tokens) - spoken[-n]
+                cuts.setdefault(cut, f"Take back the last {n} word{'s' if n > 1 else ''}")
+        ends = [i for i, t in enumerate(tokens[:-1]) if t in SENTENCE_END]
+        if ends and len(tokens) - ends[-1] - 1 not in cuts:
+            cuts[len(tokens) - ends[-1] - 1] = "Take back the whole last sentence"
+        cuts.setdefault(len(tokens), "Take back everything and start the reply again")
+        if len(cuts) == 1:
+            return next(iter(cuts))
+        criteria = {
+            f"back{cut}": desc + (f', leaving: "{render(tokens[:-cut])}"' if cut < len(tokens) else ", leaving nothing.")
+            for cut, desc in sorted(cuts.items())
+        }
+        q = Choice(
+            instructions=WRITING + f'Here is the reply so far: "{render(tokens)}". ' + why
+            + " How much of it should be deleted, so that what is left is a good start that can be continued into a good reply? "
+            "Delete as little as possible, but everything that has to go.",
+            criteria=criteria,
+        )
+        pick = self._wave("how far back", state, {"back": q}, trace)["back"].value
+        return int(pick.removeprefix("back"))
+
     # -- one turn -----------------------------------------------------------
 
     def reply(self, history: list[dict], user_message: str, thesaurus: bool = True,
               threshold: float = ACCEPT_THRESHOLD) -> Iterator[dict]:
-        """Yields events: plan, token / undo / end, assess, rewind, and finally done."""
+        """Yields events: plan, token / back / end, assess, and finally done."""
         recent = history[-HISTORY_TURNS:]
         totals = {"requests": 0, "latency_ms": 0, "input_tokens": 0}
 
@@ -205,18 +248,26 @@ class LinearComposer:
         max_words = MAX_WORDS.get(picks.get("length"), 10)
         yield {"type": "plan", "plan": picks, "max_words": max_words, "trace": trace}
 
-        # --- 2. write, assess, and if rejected rewind and resume -------------
+        # --- 2. write, assess, and if rejected go back and resume ------------
         seen: dict[str, str] = {}
         for w in re.findall(r"[A-Za-z0-9][A-Za-z0-9'\-]*", user_message):
             seen.setdefault(w.lower(), w if w[1:].islower() and len(w) > 1 else w.lower())  # keep "Australia", not "HEY"
         echo = list(seen.values())[:255]
 
         tokens: list[str] = []
-        strength: list[float] = []  # how decisively each token won its comparison
-        banned: dict[tuple, set[str]] = {}  # text before a position -> words rejected there (by undo or rewind)
+        taken_back: dict[tuple, list[str]] = {}  # text before a position -> continuations tried there and deleted
+        heats_cache: dict = {}
         best = {"score": -1.0, "text": "..."}
         accepted = False
         attempt = 0
+
+        def go_back(why: str, trace: list) -> dict:
+            cut = self._how_far_back(state, tokens, why, trace)
+            removed = tokens[-cut:]
+            del tokens[-cut:]
+            taken_back.setdefault(tuple(tokens), []).append(render(removed).rstrip(".").lower() or render(removed))
+            return {"type": "back", "removed": render(removed), "text": render(tokens), "trace": trace}
+
         while True:
             attempt += 1
             undos_left = MAX_UNDOS
@@ -224,7 +275,7 @@ class LinearComposer:
                 n_words = sum(t not in SENTENCE_END and t != "," and t not in self.emoji for t in tokens)  # emoji are free
                 force_end = n_words >= max_words and not self._ended(tokens)
                 n_emoji = sum(t in self.emoji for t in tokens)
-                may_emoji = picks.get("emoji") == "yes" and n_emoji < MAX_EMOJI and not (tokens and tokens[-1] in self.emoji)
+                may_emoji = (picks.get("emoji") == "yes" and n_emoji < MAX_EMOJI and tokens[-1:] != [] and tokens[-1] in SENTENCE_END)  # only right after a closing mark: mid-sentence emoji read as broken grammar
                 at_limit = n_words >= max_words and not force_end  # out of words, sentence closed: an emoji or nothing
                 if at_limit and not may_emoji:
                     break
@@ -233,23 +284,22 @@ class LinearComposer:
                 state = {"conversation_so_far": recent, "user_message": user_message,
                          "reply_plan": plan, "reply_so_far": render(tokens)}
                 trace = []
-                token, p = self._next_token(state, tokens, echo, force_end, thesaurus, trace,
-                                            banned=banned.get(tuple(tokens), set()),
+                token, _ = self._next_token(state, tokens, echo, force_end, thesaurus, trace,
+                                            taken_back=taken_back.get(tuple(tokens), []), heats_cache=heats_cache,
                                             can_undo=bool(tokens) and undos_left > 0 and not force_end and not at_limit,
                                             at_limit=at_limit, wants_emoji=may_emoji)
-                tally(trace)
                 if token == "END":
+                    tally(trace)
                     yield {"type": "end", "trace": trace}
                     break
                 if token == "UNDO":
                     undos_left -= 1
-                    removed = tokens.pop()
-                    strength.pop()
-                    banned.setdefault(tuple(tokens), set()).add(removed)  # don't walk into the same mistake
-                    yield {"type": "undo", "token": removed, "text": render(tokens), "trace": trace}
+                    event = go_back("The reply has gone wrong.", trace)
+                    tally(trace)
+                    yield event
                     continue
+                tally(trace)
                 tokens.append(token)
-                strength.append(p)
                 yield {"type": "token", "token": token, "text": render(tokens), "trace": trace}
             if not tokens:
                 break
@@ -271,14 +321,11 @@ class LinearComposer:
             if accepted or attempt >= MAX_ATTEMPTS:
                 break
 
-            # Rejected: rewind to the word Jev was least sure of and rule it out there.
-            # (Closing marks are skipped: swapping "." for "!" doesn't change what was said.)
-            words_at = [i for i, t in enumerate(tokens) if t not in SENTENCE_END] or list(range(len(tokens)))
-            weakest = min(words_at, key=strength.__getitem__)
-            banned.setdefault(tuple(tokens[:weakest]), set()).add(tokens[weakest])
-            yield {"type": "rewind", "token": tokens[weakest], "strength": round(strength[weakest], 4),
-                   "text": render(tokens[:weakest])}
-            del tokens[weakest:], strength[weakest:]
+            # Rejected: Jev decides how much of it to take back, then writes on from there.
+            trace = []
+            event = go_back("This finished reply was judged not good enough as a reply to the user.", trace)
+            tally(trace)
+            yield event
 
         yield {"type": "done", "text": best["text"], "score": max(best.get("responds", 0.0), 0.0), "threshold": threshold,
                "accepted": accepted, "attempts": attempt, **totals}

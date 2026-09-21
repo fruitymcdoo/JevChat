@@ -65,6 +65,9 @@ function handleEvent(ev, msg, trace) {
     msg.classList.remove("pending");
     bubble.textContent = ev.text;
     addStep(trace, `+ ${ev.token}`, "", ev.trace);
+  } else if (ev.type === "back") {
+    bubble.textContent = ev.text || "…";
+    addStep(trace, `↶ went back: took back "${ev.removed}"`, "undo", ev.trace);
   } else if (ev.type === "undo") {
     bubble.textContent = ev.text || "…";
     addStep(trace, `↶ undo "${ev.token}"`, "undo", ev.trace);

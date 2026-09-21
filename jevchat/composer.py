@@ -61,9 +61,12 @@ REOPEN_FRACTION = 0.34  # after a rejection, this share of slots (the shakiest) 
 ACCEPT_THRESHOLD = 0.80  # default; the UI can override per message. Good replies to complex messages tend to land around 0.80-0.90.
 GATE = "responds"
 ASSESS = {
+    # Wording chosen in experiments/judge_calibration.py: at an 80% bar it passes 16 of 16 fair replies
+    # (the stricter "is this a good reply" passed 11) and still lets through none of the 10 bad ones.
     "responds": (
-        "Is this a good reply to what the user said? A good reply speaks to what the user actually said, "
-        "in a way a thoughtful person would find fitting and sensible."
+        "Is this an acceptable reply to what the user said? It is acceptable if it speaks to what the user actually "
+        "said and makes sense. It does not have to be detailed, complete or perfectly worded: a short, relevant, "
+        "sensible reply counts. It is not acceptable if it is wrong, off-topic, empty of content, or just repeats the user."
     ),
     "grammatical": "Is the reply written in correct, natural English, with no missing or misplaced words?",
     "complete": "Does the reply end properly as a finished thought, instead of being cut off in the middle or trailing off into nonsense?",
@@ -166,8 +169,14 @@ def load_lexicon(path: Path | None = None) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+_PROPER: set[str] | None = None
+
+
 def render(tokens: list[str | None]) -> str:
-    """Typography is code's job: spacing, capitals, the pronoun I. Empty slots vanish."""
+    """Typography is code's job: spacing, capitals (sentences, names, the pronoun I). Empty slots vanish."""
+    global _PROPER
+    if _PROPER is None:
+        _PROPER = set(load_lexicon().get("proper", []))
     text = ""
     capitalize = True
     for tok in tokens:
@@ -179,6 +188,8 @@ def render(tokens: list[str | None]) -> str:
             continue
         if tok == "i" or tok.startswith("i'"):
             tok = "I" + tok[1:]
+        if tok in _PROPER:
+            tok = tok[0].upper() + tok[1:]
         if capitalize:
             tok = tok[0].upper() + tok[1:]
             capitalize = False
