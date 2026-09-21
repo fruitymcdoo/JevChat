@@ -62,6 +62,8 @@ for msg in SCRIPT:
             print("      reopen:   " + ", ".join(f"{r['slot']}={r['token']} ({r['p']:.2f})" for r in ev["slots"]))
         elif kind == "done":
             flag = "" if ev["accepted"] else f"  (best effort: {ev['score']:.0%} < {ev['threshold']:.0%})"
+            if not ev["accepted"] and ev["score"] >= ev["threshold"] and ev.get("grammatical") is not None:
+                flag = f"  (best effort: responds {ev['score']:.0%}, but grammar {ev['grammatical']:.0%} is under the floor)"
             print(f" bot> {ev['text']}{flag}")
             print(f"      [{ev['attempts']} attempts, {ev['requests']} req, {ev['latency_ms']} ms, {ev['input_tokens']} tok]\n")
             history += [{"role": "user", "text": msg}, {"role": "assistant", "text": ev["text"]}]

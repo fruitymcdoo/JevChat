@@ -40,7 +40,7 @@ at a time, and every choice sees the real text so far.
 | kind | What kind of word comes next: pronoun, helper verb, noun, verb, ..., a number, an emoji (if the plan said yes; at most 2, never adjacent, and free of the word limit), a word echoed from the user, punctuation, or stop. The top 3 kinds all go on. |
 | heats | A big kind is several flat lists of 255 words by frequency (nouns: 20 lists). Every list is asked at once and sends its best 3 words to a final. |
 | finals | One flat choice per kind among the heat winners. Its top 3 are nominated; with the thesaurus on, so are synonyms of its favourite. |
-| compare | The nominees rendered as whole texts ("Sorry about your", "Sorry about that", ...). Jev picks the one that reads best, or stops, or goes back (only at 80%+ probability). |
+| compare | The nominees rendered as whole texts ("Sorry about your", "Sorry about that", ...). Jev picks the one that reads best, or stops, or goes back (only at 90%+ probability). Options that close a sentence or stop can be weighted by `CLOSE_WEIGHT` first; it is neutral (1.0) because `experiments/close_weight.py` found 0.8 added half a word per reply and cost quality. |
 | go back | Jev also chooses *how far*: the last 1, 2, 3, 4, 6 or 8 words, the whole last sentence, or everything, each shown as the text it would leave. Nothing is banned afterwards. Jev is told what was tried from that point and taken back, and writes on freely. |
 | assess | 3 yes/no questions about the finished reply: `responds`, `grammatical`, `complete`. Accepted when `responds` reaches `ACCEPT_THRESHOLD` (default 0.80, adjustable per message in the UI) and `grammatical` clears a floor of 0.25 (truly broken text scores under 0.1). |
 | retry | On rejection Jev chooses how far to go back, exactly as above, and writing resumes, up to 3 attempts. Then the best attempt is sent, flagged as below the bar. |
@@ -168,7 +168,7 @@ Left to right, with the 17,000-word dictionary, no bans, and the calibrated judg
 - Going back used to look "touchy" for a structural reason (`experiments/undo_probabilities.py`): after a
   sentence ended, the comparison sometimes offered only "stop" or "go back", and Jev chose "go back" at 83-89%
   simply because it wasn't finished talking. Stopping now always competes with a real continuation, and going
-  back needs 80%. The RPG question went from 7 go-backs and 449 requests to none and 97.
+  back now needs 90%. The RPG question went from 7 go-backs and 449 requests to none and 97.
 - Going back without bans can repeat itself: Jev sometimes rewrites the same words it just took back ("I think I'm"
   twice). The per-attempt limit on going back keeps this bounded.
 - The parallel composer manages single short sentences ("Where do you hike to?" 85%) but not longer

@@ -104,7 +104,9 @@ function handleEvent(ev, msg, trace) {
     const tries = `${ev.attempts} attempt${ev.attempts === 1 ? "" : "s"}` + (ev.rounds ? `, ${ev.rounds} rounds` : "");
     const verdict = ev.accepted
       ? el("div", "verdict ok", `accepted at ${pct(ev.score)} · ${tries}`)
-      : el("div", "verdict low", `best effort: ${pct(ev.score)}, below the ${pct(ev.threshold)} bar · ${tries}`);
+      : ev.score >= ev.threshold && ev.grammatical != null
+        ? el("div", "verdict low", `best effort: responds ${pct(ev.score)}, but grammar ${pct(ev.grammatical)} is under the ${pct(ev.grammar_min)} floor · ${tries}`)
+        : el("div", "verdict low", `best effort: ${pct(ev.score)}, below the ${pct(ev.threshold)} bar · ${tries}`);
     msg.insertBefore(verdict, trace);
     trace.querySelector("summary").textContent =
       `${ev.requests} requests · ${ev.latency_ms} ms · ${ev.input_tokens} tokens`;

@@ -43,7 +43,10 @@ HEAT_WINNERS = 3  # words each flat list sends to its kind's final
 WORDS_PER_BRANCH = 3  # nominees taken from each kind's final
 SYNONYMS = 3  # thesaurus: extra nominees for each kind's best word
 MAX_UNDOS = 3  # times per attempt Jev may choose to go back, so it can never loop forever
-UNDO_MIN_P = 0.8  # go back only when Jev is this sure; at 0.6 it still backed out of perfectly good starts
+UNDO_MIN_P = 0.9  # go back only when Jev is this sure. Its bare "go back" vote sits at 0.3-0.7 even on good text.
+CLOSE_WEIGHT = 1.0  # below 1 discourages ending: in the comparison, options that close a sentence (. ? ! or stopping)
+#                     have their probability multiplied by this before the winner is picked. Neutral by default, because
+#                     experiments/close_weight.py found 0.8 adds half a word per reply and costs quality (grammar 0.86 -> 0.76).
 BACK_STEPS = (1, 2, 3, 4, 6, 8)  # how many words Jev may take back at once (plus: the sentence, everything)
 MAX_ATTEMPTS = 3  # drafts judged per reply
 MAX_EMOJI = 2  # per reply, and never two in a row: they don't count as words, so they need their own limit
@@ -192,10 +195,12 @@ class LinearComposer:
             )
             labels = {cid: f"+ {tok}" for cid, tok in candidates.items()}
             probs = self._wave("compare texts", state, {"text": q}, trace, labels)["text"].probabilities
-            ranked = sorted(probs, key=probs.get, reverse=True)
-            pick = ranked[0]
-            if pick == "UNDO" and probs["UNDO"] < UNDO_MIN_P and len(ranked) > 1:
-                pick = ranked[1]  # going back needs conviction, not a plurality
+            forward = {cid: pr * (CLOSE_WEIGHT if cid == "END" or candidates.get(cid) in SENTENCE_END else 1.0)
+                       for cid, pr in probs.items() if cid != "UNDO"}
+            if probs.get("UNDO", 0.0) >= UNDO_MIN_P or not forward:
+                pick = "UNDO"  # going back needs conviction, not a plurality
+            else:
+                pick = max(forward, key=forward.get)
             p = probs[pick]
         return candidates.get(pick, pick), p
 
@@ -319,7 +324,7 @@ class LinearComposer:
             accepted = score >= threshold and scores["grammatical"] >= GRAMMAR_MIN
             ranking = score if scores["grammatical"] >= GRAMMAR_MIN else score * scores["grammatical"]  # broken grammar can't be "best"
             if ranking > best["score"]:
-                best = {"score": ranking, "text": text, "responds": score}
+                best = {"score": ranking, "text": text, "responds": score, "grammatical": scores["grammatical"]}
             yield {"type": "assess", "attempt": attempt, "text": text, "scores": scores, "score": score,
                    "threshold": threshold, "accepted": accepted, "trace": trace}
             if accepted or attempt >= MAX_ATTEMPTS:
@@ -332,4 +337,5 @@ class LinearComposer:
             yield event
 
         yield {"type": "done", "text": best["text"], "score": max(best.get("responds", 0.0), 0.0), "threshold": threshold,
+               "grammatical": best.get("grammatical"), "grammar_min": GRAMMAR_MIN,
                "accepted": accepted, "attempts": attempt, **totals}
